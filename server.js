@@ -1,29 +1,3 @@
-// const { Sequelize } = require('sequelize');
-
-// Option 1: Passing a connection URI
-// const sequelize = new Sequelize('sqlite::memory:') // Example for sqlite
-
-// Option 2: Passing parameters separately (sqlite)
-// const sequelize = new Sequelize({
-//   dialect: 'sqlite',
-//   storage: 'db.sqlite'
-// });
-
-// Option 3: Passing parameters separately (other dialects)
-// const sequelize = new Sequelize('database', 'username', 'password', {
-//   host: 'localhost',
-//   dialect: 'sqlite'
-// });
-
-// try {
-//   sequelize.authenticate();
-//   console.log('Connection has been established successfully.');
-// } catch (error) {
-//   console.error('Unable to connect to the database:', error);
-// }
-
-
-
 const express = require("express");
 const cors = require("cors");
 
@@ -37,7 +11,6 @@ var corsOptions = {
     callback(null, true); // Autoriser toutes les sources
   }
 };
-
 
 app.use(cors(corsOptions));
 
@@ -55,7 +28,7 @@ const sequelize = new Sequelize('sqlite::memory:', {
   }
 });
 
-require("./app/routes/routes.js")(app);
+require("./routes/routes.js")(app);
 
 // set port, listen for requests
 const PORT = process.env.PORT || 8080;
@@ -63,7 +36,7 @@ app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
 });
 
-const db = require("./app/models");
+const db = require("./models/index.js");
 
 db.sequelize.sync()
   .then(() => {
@@ -73,6 +46,7 @@ db.sequelize.sync()
     console.log("Failed to sync db: " + err.message);
   });
 
+// Supprimer les données de la base
 /* db.sequelize.sync({ force: true }).then(() => {
     console.log("Drop and re-sync db.");
 })
