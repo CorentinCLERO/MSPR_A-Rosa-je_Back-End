@@ -8,17 +8,26 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+      
     steps:
 
     - name: code checkout
       uses: actions/checkout@v2
 
     - name: install the gcloud cli
-      uses: google-github-actions/setup-gcloud@v0
+      uses: google-github-actions/auth@v2
       with:
-        project_id: ${{ secrets.GOOGLE_PROJECT }}
-        service_account_key: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
-        export_default_credentials: true
+        credentials_json: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+        service_account: ${{ secrets.GOOGLE_PROJECT }}
+      
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v2
+      with:
+        version: '>= 363.0.0'
 
     - name: build and push the docker image
       env:
