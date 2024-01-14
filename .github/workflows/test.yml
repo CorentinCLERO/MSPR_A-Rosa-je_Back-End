@@ -1,0 +1,22 @@
+name: Application test
+
+on:
+  push:
+    branches:
+    - 'develop'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+      
+    steps:
+    - name: code checkout
+      uses: actions/checkout@v2
+
+    - name: build the docker image
+      run: |
+        docker build -t europe-west9-docker.pkg.dev/test/backend/nginx:test .
+        
+    - name: run tests in docker container
+      run: |
+        docker run --rm europe-west9-docker.pkg.dev/test/backend/nginx:test npm test
