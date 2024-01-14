@@ -1,9 +1,9 @@
 const db = require("../models");
-const User = db.User;
+const Test = db.Test;
 
 // Retrieve all Utilisateurs from the database.
 exports.find = (req, res) => {
-    User.findAll({})
+    Test.findAll({})
         .then(data => res.send(data))
         .catch(err => {
             res.status(500).send({
