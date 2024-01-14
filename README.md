@@ -16,23 +16,19 @@ Setup nodejs and mysql.
 ```sh
 $ git clone https://github.com/CorentinCLERO/MSPR_A-Rosa-je_Back-End.git
 $ npm install
-$ sudo npm install -g pm2
-$ sudo pm2 start pm2.json
 ```
+
 ## Run
+
 ```sh
 $ npm start
 ```
-## Run server with pm2
-```sh
-$ sudo pm2 start pm2.json
-```
-## Test api with postman
-Please import `Node-Express-MySQL-DEMO.postman_collection.json ` into your post man
-There are 6 apis you can test 
 
 ## DB migration with sequelize
 ```sh
 $ npx sequelize-cli db:migrate
 ```
+
 **NOTE:** You can find migration template files from ./migrations
+
+[Sequelize Doc](https://sequelize.org/docs/v6/)
