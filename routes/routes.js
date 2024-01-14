@@ -3,7 +3,11 @@ module.exports = app => {
 
   var router = require("express").Router();
 
+  router.get("/", (req, res) => {
+    res.send("Hello World");
+  });
+
   router.get("/users", usersSrv.find);
 
-  app.use('/api/utilisateurs', router);
+  app.use('/api', router);
 };
