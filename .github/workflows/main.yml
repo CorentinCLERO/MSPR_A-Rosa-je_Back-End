@@ -18,27 +18,42 @@ jobs:
     - name: code checkout
       uses: actions/checkout@v2
 
-    - name: install the gcloud cli
+    - name: install the gcloud cli to interface with Google Cloud
       uses: google-github-actions/auth@v2
       with:
         credentials_json: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
         service_account: ${{ secrets.GOOGLE_PROJECT }}
       
-    - name: Set up Cloud SDK
+    - name: Set up Cloud SDK to interface with Google Cloud
       uses: google-github-actions/setup-gcloud@v2
       with:
         version: '>= 363.0.0'
         install_components: 'gke-gcloud-auth-plugin'
 
-    - name: build and push the docker image
+    - name: authenticate Docker with Google Cloud
+      run: |
+        gcloud auth configure-docker europe-west9-docker.pkg.dev
+
+    - name: build the docker image
       env:
         GOOGLE_PROJECT: ${{ secrets.GOOGLE_PROJECT }}
       run: |
-        gcloud auth configure-docker europe-west9-docker.pkg.dev
-        docker build -t europe-west9-docker.pkg.dev/$GOOGLE_PROJECT/backend/nginx:latest .
+        docker build -t europe-west9-docker.pkg.dev/$GOOGLE_PROJECT/backend/nginx:test .
+
+    - name: run tests in docker container
+      env:
+        GOOGLE_PROJECT: ${{ secrets.GOOGLE_PROJECT }}
+      run: |
+        docker run --rm europe-west9-docker.pkg.dev/$GOOGLE_PROJECT/backend/nginx:test npm test
+
+    - name: push docker container to Google Artifact Registry
+      env:
+        GOOGLE_PROJECT: ${{ secrets.GOOGLE_PROJECT }}
+      run: |
+        docker tag europe-west9-docker.pkg.dev/$GOOGLE_PROJECT/backend/nginx:test europe-west9-docker.pkg.dev/$GOOGLE_PROJECT/backend/nginx:latest
         docker push europe-west9-docker.pkg.dev/$GOOGLE_PROJECT/backend/nginx:latest
 
-    - name: deploy to gke
+    - name: deploy to GKE (Google Kubernetes Engine)
       env:
         GOOGLE_PROJECT: ${{ secrets.GOOGLE_PROJECT }}
       run: |
