@@ -45,3 +45,4 @@ jobs:
         gcloud container clusters get-credentials autopilot-cluster-msprbackend --region europe-west9
         sed -i "s/GOOGLE_PROJECT/$GOOGLE_PROJECT/g" resources.yaml
         kubectl apply -f resources.yaml
+        kubectl rollout restart deployment nginx
