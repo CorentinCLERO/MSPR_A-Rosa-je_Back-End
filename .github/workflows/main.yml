@@ -23,6 +23,8 @@ jobs:
       with:
         credentials_json: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
         service_account: ${{ secrets.GOOGLE_PROJECT }}
+        install_components: 'gke-gcloud-auth-plugin'
+        export_default_credentials: true
       
     - name: Set up Cloud SDK
       uses: google-github-actions/setup-gcloud@v2
@@ -36,3 +38,11 @@ jobs:
         gcloud auth configure-docker europe-west9-docker.pkg.dev
         docker build -t europe-west9-docker.pkg.dev/$GOOGLE_PROJECT/backend/nginx:latest .
         docker push europe-west9-docker.pkg.dev/$GOOGLE_PROJECT/backend/nginx:latest
+
+    - name: deploy to gke
+      env:
+        GOOGLE_PROJECT: ${{ secrets.GOOGLE_PROJECT }}
+      run: |
+        gcloud container clusters get-credentials autopilot-cluster-1 --region europe-west9
+        sed -i "s/GOOGLE_PROJECT/$GOOGLE_PROJECT/g" resources.yaml
+        kubectl apply -f resources.yaml
