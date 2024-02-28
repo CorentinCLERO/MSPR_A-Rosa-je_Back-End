@@ -61,3 +61,11 @@ jobs:
         sed -i "s/GOOGLE_PROJECT/$GOOGLE_PROJECT/g" resources.yaml
         kubectl apply -f resources.yaml
         kubectl rollout restart deployment nginx
+
+    - name: Check application health
+      run: |
+        STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" ${{ secrets.GOOGLE_NGINX_URL }})
+        if [ "$STATUS_CODE" != "200" ]; then
+          echo "Application is not healthy. Status code: $STATUS_CODE"
+          exit 1
+        fi
