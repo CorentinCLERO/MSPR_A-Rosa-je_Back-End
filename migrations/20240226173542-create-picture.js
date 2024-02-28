@@ -2,7 +2,7 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('Picture', {
+    await queryInterface.createTable('Pictures', {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -20,7 +20,7 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: true,
         references: {
-          model: 'Request',
+          model: 'Requests',
           key: 'id'
         },
         onUpdate: 'CASCADE'
@@ -29,7 +29,7 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: true,
         references: {
-          model: 'Plant',
+          model: 'Plants',
           key: 'id'
         },
         onUpdate: 'CASCADE'
@@ -38,7 +38,7 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: true,
         references: {
-          model: 'HelpRequest',
+          model: 'HelpRequests',
           key: 'id'
         },
         onUpdate: 'CASCADE'
@@ -48,6 +48,6 @@ module.exports = {
     });
   },
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('Picture');
+    await queryInterface.dropTable('Pictures');
   }
 };

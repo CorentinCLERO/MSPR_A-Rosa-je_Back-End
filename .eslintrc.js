@@ -1,7 +1,8 @@
 module.exports = {
   'env': {
     'es2021': true, // Active la syntaxe ECMAScript 2021, permettant les dernières fonctionnalités JavaScript
-    'node': true // Signale que le code s'exécute dans un environnement Node.js
+    'node': true, // Signale que le code s'exécute dans un environnement Node.js
+    'jest': true, // Inclut Jest
   },
   'extends': 'eslint:recommended', // Étend les règles recommandées par ESLint, offrant un bon ensemble de pratiques par défaut
   'parserOptions': {

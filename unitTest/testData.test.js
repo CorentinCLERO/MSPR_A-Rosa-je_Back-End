@@ -1,14 +1,19 @@
 const request = require('supertest');
-let server;
+const { sequelize } = require('../models');
 
+let server; 
+
+beforeAll(() => {
+  server = require('../server');
+});
+
+afterAll(done => {
+  server.close(() => {
+    sequelize.close().then(() => done());
+  });
+});
 
 describe('Test API route', () => {
-  beforeAll(() => {
-    server = require('../server');
-  });
-  afterAll(async () => {
-    await server.close();
-  });
   it('should return true for the first row state', async () => {
     const response = await request(server).get('/api/test');
     expect(response.statusCode).toBe(200);
