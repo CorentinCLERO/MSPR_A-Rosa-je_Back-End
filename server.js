@@ -1,61 +1,43 @@
-const express = require('express');
-const cors = require('cors');
+const express = require("express");
+const { Sequelize, DataTypes } = require("sequelize");
 
 const app = express();
+const port = 8080;
 
-// var corsOptions = {
-//   origin: 'http://localhost:3000'
-// };
-const corsOptions = {
-  origin: function (origin, callback) {
-    callback(null, true); // Autoriser toutes les sources
-  }
-};
-
-app.use(cors(corsOptions));
-
-// parse requests of content-type - application/json
-app.use(express.json());
-
-// parse requests of content-type - application/x-www-form-urlencoded
-app.use(express.urlencoded({ extended: true }));
-
-const { Sequelize } = require('sequelize');
-
-const sequelize = new Sequelize('sqlite:memory:', {
-  define: {
-    freezeTableName: true
-  }
+// Configuration de Sequelize pour SQLite
+const sequelize = new Sequelize({
+  dialect: "sqlite",
+  storage: "db.sqlite",
 });
 
-require('./routes/routes.js')(app);
+const Plant = require("./models/Plant")(sequelize, DataTypes);
+const User = require("./models/User");
 
-// set port, listen for requests
-const PORT = process.env.PORT || 8080;
-const server = app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}.`);
+// Synchronisation du modèle avec la base de données
+(async () => {
+  try {
+    await sequelize.sync({ force: true });
+    console.log("Modèles synchronisés avec la base de données.");
+
+    // Une fois la synchronisation terminée, commencez à écouter les requêtes HTTP
+    app.listen(port, () => {
+      console.log(`Le serveur écoute sur le port ${port}`);
+    });
+  } catch (error) {
+    console.error("Erreur lors de la synchronisation des modèles:", error);
+  }
+})();
+
+// Route pour récupérer toutes les plantes depuis la base de données
+app.get("/plants", async (req, res) => {
+  try {
+    console.log("sr");
+    const plants = await Plant.findAll();
+    res.json(plants);
+  } catch (error) {
+    console.error("Erreur lors de la récupération des plantes:", error);
+    res
+      .status(500)
+      .send("Une erreur s'est produite lors de la récupération des plantes.");
+  }
 });
-
-module.exports = server;
-
-const db = require('./models/index.js');
-
-db.sequelize.sync()
-  .then(() => {
-    console.log('Synced db.');
-  })
-  .catch((err) => {
-    console.log('Failed to sync db: ' + err.message);
-  });
-
-// Supprimer les données de la base
-/* db.sequelize.sync({ force: true }).then(() => {
-    console.log('Drop and re-sync db.');
-})
-    .catch((err) => {
-        console.log('Failed to Drop and re-sync db: ' + err.message);
-    }); */
-
-// SUPPRESSION DE TOUTE LA BASE DE DONNEES
-// db.sequelize.drop();
-//   console.log('All tables dropped!');
