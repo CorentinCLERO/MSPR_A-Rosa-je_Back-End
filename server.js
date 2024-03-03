@@ -81,16 +81,20 @@ app.get("/plants", async (req, res) => {
 
 app.post("/plant", async (req, res) => {
   try {
-    console.log(req.body);
-    const { variety } = req.body;
-    console.log(variety);
-    const plants = await Plant.findAll();
-    res.json(plants);
+    const { userId, variety, movable, adress_id, request_id } = req.body;
+    const plant = await Plants.create({
+      variety: variety,
+      movable: movable,
+      adress_id: adress_id ? null : adress_id,
+      request_id: request_id ? null : request_id,
+      userId: userId,
+    });
+    res.send("plante ajoutée");
   } catch (error) {
-    console.error("Erreur lors de la récupération des plantes:", error);
+    console.error("Erreur lors de l'ajout de la plante:", error);
     res
       .status(500)
-      .send("Une erreur s'est produite lors de la récupération des plantes.");
+      .send("Une erreur s'est produite lors de l'ajout de la plante.");
   }
 });
 
