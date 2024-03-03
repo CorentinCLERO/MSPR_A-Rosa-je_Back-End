@@ -1,32 +1,36 @@
 module.exports = (sequelize, DataTypes) => {
-  const Request = sequelize.define('Request', {
+  const Request = sequelize.define("Request", {
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
-      autoIncrement: true
+      autoIncrement: true,
     },
     begin_date: {
       type: DataTypes.DATE,
-      allowNull: false
+      allowNull: false,
     },
     end_date: {
-      type: DataTypes.DATE
+      type: DataTypes.DATE,
     },
     status: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: false,
     },
     reason: {
-      type: DataTypes.STRING
+      type: DataTypes.STRING,
     },
     description: {
-      type: DataTypes.TEXT
-    }
+      type: DataTypes.TEXT,
+    },
+    adress_id: {
+      type: DataTypes.INTEGER,
+    },
   });
 
-  Request.associate = function(models) {
-    Request.hasMany(models.Plant, { foreignKey: 'request_id' });
-    Request.hasMany(models.Picture, { foreignKey: 'request_id' });
+  Request.associate = function (models) {
+    Request.hasMany(models.Plant, { foreignKey: "request_id" });
+    Request.hasMany(models.Picture, { foreignKey: "request_id" });
+    Request.belongsTo(models.Adress, { foreignKey: "adress_id" });
   };
 
   return Request;
