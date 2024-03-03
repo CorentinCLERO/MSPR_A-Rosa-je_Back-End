@@ -16,7 +16,9 @@ const sequelize = new Sequelize({
 });
 
 const Plant = require("./models/Plant")(sequelize, DataTypes);
+const Plants = require("./models/Plants")(sequelize, DataTypes);
 const User = require("./models/User")(sequelize, DataTypes);
+const Picture = require("./models/Picture")(sequelize, DataTypes);
 
 (async () => {
   try {
@@ -33,11 +35,42 @@ const User = require("./models/User")(sequelize, DataTypes);
 
 app.get("/plants", async (req, res) => {
   try {
-    console.log(req.body);
-    const { variety } = req.body;
-    console.log(variety);
-    const plants = await Plant.findAll();
-    res.json(plants);
+    const { userId } = req.body;
+    if (userId == null) {
+      res.send("l'identifiant est incorrect");
+    } else {
+      const thisUser = await User.findOne({
+        where: { id: userId },
+      });
+      if (thisUser) {
+        const plants = await Plants.findAll({
+          where: {
+            userId: thisUser.id,
+          },
+        });
+        let plantList = [];
+        for (let i = 0; i < plants.length; i++) {
+          let picture = await Picture.findOne({
+            where: {
+              plant_id: plants[i].id,
+            },
+          });
+          if (picture == null) {
+            picture =
+              "https://upload.wikimedia.org/wikipedia/commons/6/6a/Exposition_Eug%C3%A8ne_Grasset_au_Salon_des_Cent.jpg";
+          }
+          plants[i].dataValues.picture = picture;
+          delete plants[i].dataValues.createdAt;
+          delete plants[i].dataValues.updatedAt;
+          delete plants[i].dataValues.userId;
+          plantList.push(plants[i]);
+        }
+        res.status(200).json(plantList);
+      } else {
+        res.status(404).send("Utilisateur non trouvé");
+      }
+    }
+    res.send;
   } catch (error) {
     console.error("Erreur lors de la récupération des plantes:", error);
     res
