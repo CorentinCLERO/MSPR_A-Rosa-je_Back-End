@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const { Sequelize, DataTypes, where } = require("sequelize");
 const http = require("http");
@@ -6,9 +7,13 @@ const app = express();
 const port = 8080;
 const axios = require("axios");
 
-const bodyParser = require("body-parser");
+app.use(express.json());
 
-app.use(bodyParser.json());
+// const bodyParser = require("body-parser");
+
+// app.use(bodyParser.json());
+
+require("./routes/routes.js")(app);
 
 const sequelize = new Sequelize({
   sync: false,
@@ -16,25 +21,42 @@ const sequelize = new Sequelize({
   storage: "db.sqlite",
 });
 
+const PORT = process.env.PORT || 8080;
+const server = app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}.`);
+});
+
+const db = require("./models/index.js");
+
+module.exports = server;
+
+db.sequelize.sync()
+  .then(() => {
+    console.log("Synced db.");
+  })
+  .catch((err) => {
+    console.log("Failed to sync db: " + err.message);
+  });
+
 const Plant = require("./models/Plant")(sequelize, DataTypes);
-const Plants = require("./models/Plants")(sequelize, DataTypes);
 const User = require("./models/User")(sequelize, DataTypes);
 const Picture = require("./models/Picture")(sequelize, DataTypes);
 const Request = require("./models/Request")(sequelize, DataTypes);
 const Adress = require("./models/Adress")(sequelize, DataTypes);
 
-(async () => {
-  try {
-    await sequelize.sync({ force: false });
-    console.log("Modèles synchronisés avec la base de données.");
+// (async () => {
+//   try {
+//     await sequelize.sync({ force: false });
+//     console.log("Modèles synchronisés avec la base de données.");
 
-    app.listen(port, () => {
-      console.log(`Le serveur écoute sur le port ${port}`);
-    });
-  } catch (error) {
-    console.error("Erreur lors de la synchronisation des modèles:", error);
-  }
-})();
+//     app.listen(port, () => {
+//       console.log(`Le serveur écoute sur le port ${port}`);
+//     });
+//   } catch (error) {
+//     console.error("Erreur lors de la synchronisation des modèles:", error);
+//   }
+// })();
+
 
 app.get("/plants", async (req, res) => {
   try {
@@ -46,7 +68,7 @@ app.get("/plants", async (req, res) => {
         where: { id: userId },
       });
       if (thisUser) {
-        const plants = await Plants.findAll({
+        const plants = await Plant.findAll({
           where: {
             userId: thisUser.id,
           },
@@ -85,7 +107,7 @@ app.get("/plants", async (req, res) => {
 app.post("/plant", async (req, res) => {
   try {
     const { userId, variety, movable, adress_id, request_id } = req.body;
-    const plant = await Plants.create({
+    const plant = await Plant.create({
       variety: variety,
       movable: movable,
       adress_id: adress_id ? null : adress_id,

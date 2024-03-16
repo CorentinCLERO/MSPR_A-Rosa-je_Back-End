@@ -1,39 +1,34 @@
-("use strict");
-const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
-  class Plant extends Model {
-    static associate(models) {
-      this.hasMany(models.Picture, {
-        foreignKey: "plant_id",
-        as: "pictures",
-      });
-      this.belongsTo(models.User, {
-        foreignKey: "userId",
-        as: "user",
-      });
-    }
-  }
-  Plant.init(
-    {
-      id: {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-        autoIncrement: true,
-      },
-      variety: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
-      movable: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: true,
-      },
+  const Plant = sequelize.define("Plant", {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
     },
-    {
-      sequelize,
-      modelName: "Plant",
-      tableName: "Plant",
-    }
-  );
+    variety: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    movable: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+    },
+    userId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+  });
+
+  Plant.associate = function(models) {
+    Plant.hasMany(models.Picture, {
+      foreignKey: "plant_id",
+      as: "pictures",
+    });
+    Plant.belongsTo(models.User, {
+      foreignKey: "userId",
+      as: "user",
+    });
+  };
+
   return Plant;
 };
