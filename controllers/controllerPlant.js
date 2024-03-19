@@ -1,5 +1,6 @@
 // controllers/plantsController.js
 const { User, Plant, Picture } = require("../models");
+const cloudinary = require("cloudinary").v2; // Assurez-vous que Cloudinary est correctement configuré
 
 
 // Récupérer toutes les plantes
@@ -122,6 +123,55 @@ exports.addPlant = async (req, res) => {
   }
 };
 
+exports.deletePlant = async (req, res) => {
+  try {
+    const plantId = req.params.plantId;
 
+    // Trouver l'entrée de l'image associée à la plante
+    const picture = await Picture.findOne({
+      where: { plant_id: plantId },
+    });
+
+    // Si une image est trouvée, supprimez-la de Cloudinary
+    if (picture) {
+      const publicId = extractPublicIdFromCloudinaryUrl(picture.url);
+      console.log(`Suppression de l'image d'ID ${picture.id} de Cloudinary, public ID : ${publicId}`);
+
+      const cloudinaryResult = await cloudinary.uploader.destroy(publicId, function(error, result) {
+        console.log(result, error);
+      });
+      
+      if (cloudinaryResult.result === "ok") {
+        // Supprimer l'entrée de l'image de la base de données
+        await Picture.destroy({ where: { id: picture.id } });
+        console.log(`L'image d'ID ${picture.id} a été supprimée de la base de données.`);
+      } else {
+        console.log(`Échec de la suppression de l'image sur Cloudinary, public ID : ${publicId}`);
+      }
+    }
+
+    // Supprimez l'entrée de la plante
+    console.log(`Suppression de la plante d'ID ${plantId}`);
+    await Plant.destroy({ where: { id: plantId } });
+
+    res.status(200).send("Plante et image associée supprimées");
+    console.log(`La plante d'ID ${plantId} et son image ont été supprimées.`);
+  } catch (error) {
+    console.error("Erreur lors de la suppression de la plante et/ou de l'image :", error);
+    res.status(500).send("Erreur lors de la suppression de la plante et/ou de l'image");
+  }
+};
+
+function extractPublicIdFromCloudinaryUrl(url) {
+  const regex = /upload(?:\/v\d+)?\/([^.]+)/;
+  const matches = url.match(regex);
+
+  if (matches && matches.length > 1) {
+    return matches[1];
+  } else {
+    console.error("L'URL fournie n'est pas une URL Cloudinary valide:", url);
+    return "";
+  }
+}
 
 module.exports = exports;

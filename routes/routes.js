@@ -21,6 +21,7 @@ module.exports = app => {
   router.get("/plants/:userId", controllerPlant.getUserPlants);
   const parser = multer({ storage: storage });
   router.post("/plant", parser.single("photo"), controllerPlant.addPlant);
+  router.delete("/plant/:plantId", controllerPlant.deletePlant);
   
   const controllerRequest = require("../controllers/controllerRequest");
   router.get("/requests", controllerRequest.getRequests);
