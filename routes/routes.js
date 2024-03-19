@@ -1,17 +1,29 @@
+const multer = require("multer");
+const router = require("express").Router();
+const cloudinary = require("../config/configCloudinary");
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
+
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  folder: "msprb3cda",
+  allowedFormats: ["jpg", "png"],
+  params: {
+    folder: "msprb3cda"
+  },
+});
+
 module.exports = app => {
-  const router = require("express").Router();
   
   const testSrv = require("../controllers/controllerTest.js");
   router.get("/test", testSrv.find);
   
   const controllerPlant = require("../controllers/controllerPlant");
-  router.get("/plants/:userId", controllerPlant.getPlants);
-  router.post("/plant", controllerPlant.addPlant);
-
+  router.get("/plants/:userId", controllerPlant.getUserPlants);
+  const parser = multer({ storage: storage });
+  router.post("/plant", parser.single("photo"), controllerPlant.addPlant);
   
   const controllerRequest = require("../controllers/controllerRequest");
   router.get("/requests", controllerRequest.getRequests);
-
     
   const controllerHelpRequest = require("../controllers/controllerHelpRequest");
   router.get("/helpRequests/:userId", controllerHelpRequest.getHelpRequests);
