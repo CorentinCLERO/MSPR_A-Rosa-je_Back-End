@@ -9,7 +9,7 @@ exports.createUser = async (req, res) => {
     if (existingUser) {
       return res.status(400).send("L'utilisateur existe déjà");
     }
-
+    
     // Créer un nouvel utilisateur
     await User.create({
       email,

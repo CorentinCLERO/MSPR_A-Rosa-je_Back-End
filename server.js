@@ -26,6 +26,22 @@ const server = app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
 });
 
+process.on("SIGINT", () => {
+  console.log("Received SIGINT. Shutting down gracefully.");
+  server.close(() => {
+    console.log("Server closed");
+    process.exit(0);
+  });
+});
+
+process.on("SIGTERM", () => {
+  console.log("Received SIGTERM. Shutting down gracefully.");
+  server.close(() => {
+    console.log("Server closed");
+    process.exit(0);
+  });
+});
+
 const db = require("./models/index.js");
 
 module.exports = server;
