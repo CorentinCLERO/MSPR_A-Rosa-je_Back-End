@@ -101,6 +101,30 @@ app.post("/plant", async (req, res) => {
   }
 });
 
+app.delete("/plant/:plantId", async (req, res) => {
+  try {
+    const plantId = req.params.plantId;
+
+    const plant = await Plants.findByPk(plantId);
+    if (!plant) {
+      return res.status(404).send("Plante non trouvée");
+    }
+
+    await Plants.destroy({
+      where: {
+        id: plantId,
+      },
+    });
+
+    res.send("Plante supprimée avec succès");
+  } catch (error) {
+    console.error("Erreur lors de la suppression de la plante:", error);
+    res
+      .status(500)
+      .send("Une erreur s'est produite lors de la suppression de la plante.");
+  }
+});
+
 app.get("/requests", async (req, res) => {
   try {
     const { userId } = req.body;
