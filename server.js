@@ -22,6 +22,7 @@ const User = require("./models/User")(sequelize, DataTypes);
 const Picture = require("./models/Picture")(sequelize, DataTypes);
 const Request = require("./models/Request")(sequelize, DataTypes);
 const Adress = require("./models/Adress")(sequelize, DataTypes);
+const HelpRequest = require("./models/HelpRequest")(sequelize, DataTypes);
 
 (async () => {
   try {
@@ -101,6 +102,31 @@ app.post("/plant", async (req, res) => {
   }
 });
 
+app.delete("/plant/:plantId", async (req, res) => {
+  try {
+    const plantId = req.params.plantId;
+
+    const plant = await Plants.findByPk(plantId);
+    if (!plant) {
+      return res.status(404).send("Plante non trouvée");
+    }
+
+    // Supprimer la plante
+    await Plants.destroy({
+      where: {
+        id: plantId,
+      },
+    });
+
+    res.send("Plante supprimée avec succès");
+  } catch (error) {
+    console.error("Erreur lors de la suppression de la plante:", error);
+    res
+      .status(500)
+      .send("Une erreur s'est produite lors de la suppression de la plante.");
+  }
+});
+
 app.get("/requests", async (req, res) => {
   try {
     const { userId } = req.body;
@@ -139,14 +165,43 @@ app.get("/requests", async (req, res) => {
   }
 });
 
-app.get("/plantsos", async (req, res) => {
+app.get("/plantsos/:userId", async (req, res) => {
   try {
-    console.log(req.body);
-    const { userId } = req.body;
-
+    const userId = req.params.userId;
     const user = await User.findOne();
-    console.log(user);
-    res.json(plants);
+    if (user == null) {
+      res.send("l'utilisateur n'existe pas");
+    }
+    let plantSosList = [];
+    const plantsos = await HelpRequest.findAll({
+      where: {
+        user_id: userId,
+      },
+    });
+
+    for (let i = 0; i < plantsos.length; i++) {
+      let picture = await Picture.findOne({
+        where: {
+          helpRequest_id: plantsos[i].id,
+        },
+      });
+      if (picture == null) {
+        picture =
+          "https://upload.wikimedia.org/wikipedia/commons/6/6a/Exposition_Eug%C3%A8ne_Grasset_au_Salon_des_Cent.jpg";
+      } else {
+        picture = picture.url;
+      }
+      plantsos[i].dataValues.url = picture;
+      let plant = await Plants.findOne({
+        where: {
+          id: plantsos[i].dataValues.plant_id,
+        },
+      });
+      let plantName = plant.dataValues.variety;
+      plantsos[i].dataValues.variety = plantName;
+      plantSosList.push(plantsos[i]);
+    }
+    res.json(plantSosList);
   } catch (error) {
     console.error("Erreur lors de la récupération des plantes:", error);
     res
