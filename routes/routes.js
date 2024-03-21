@@ -24,7 +24,7 @@ module.exports = app => {
   router.delete("/plant/:plantId", controllerPlant.deletePlant);
   
   const controllerRequest = require("../controllers/controllerRequest");
-  router.get("/requests", controllerRequest.getRequests);
+  router.get("/requests/:userId", controllerRequest.getRequests);
     
   const controllerHelpRequest = require("../controllers/controllerHelpRequest");
   router.get("/helpRequests/:userId", controllerHelpRequest.getHelpRequests);
