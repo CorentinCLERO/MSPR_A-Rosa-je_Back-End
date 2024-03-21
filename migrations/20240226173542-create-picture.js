@@ -1,8 +1,8 @@
-'use strict';
+"use strict";
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('Pictures', {
+    await queryInterface.createTable("Pictures", {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -20,34 +20,34 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: true,
         references: {
-          model: 'Requests',
-          key: 'id'
+          model: "Requests",
+          key: "id"
         },
-        onUpdate: 'CASCADE'
+        onUpdate: "CASCADE"
       },
       plant_id: {
         type: Sequelize.INTEGER,
         allowNull: true,
         references: {
-          model: 'Plants',
-          key: 'id'
+          model: "Plants",
+          key: "id"
         },
-        onUpdate: 'CASCADE'
+        onUpdate: "CASCADE"
       },
       helpRequest_id: {
         type: Sequelize.INTEGER,
         allowNull: true,
         references: {
-          model: 'HelpRequests',
-          key: 'id'
+          model: "HelpRequests",
+          key: "id"
         },
-        onUpdate: 'CASCADE'
+        onUpdate: "CASCADE"
       },
       createdAt: Sequelize.DATE,
       updatedAt: Sequelize.DATE
     });
   },
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('Pictures');
+    await queryInterface.dropTable("Pictures");
   }
 };

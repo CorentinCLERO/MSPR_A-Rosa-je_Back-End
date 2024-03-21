@@ -18,7 +18,7 @@ module.exports = {
     'no-redeclare': 'error', // Interdit la redéclaration de variables, ce qui peut prévenir les erreurs de portée
     'no-shadow': 'warn', // Avertit lorsqu'une variable dans une portée locale masque une variable dans une portée englobante
     'indent': ['error', 2], // Enforce une indentation de 2 espaces pour la lisibilité
-    'quotes': ['error', 'single'], // Exige l'utilisation de guillemets simples pour la cohérence
+    'quotes': ['error', 'double'], // Exige l'utilisation de guillemets simples pour la cohérence
     'semi': ['error', 'always'], // Exige l'utilisation de points-virgules à la fin des instructions
     'no-eval': 'error', // Interdit l'utilisation de la fonction eval() pour des raisons de sécurité
 
