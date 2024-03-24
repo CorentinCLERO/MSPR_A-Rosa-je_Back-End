@@ -1,5 +1,5 @@
 const e = require("express");
-const { Request, Adress, Picture } = require("../models");
+const { Request, Adress, Picture, PlantRequest } = require("../models");
 const axios = require("axios");
 
 async function geocodeAddress(address) {
@@ -87,6 +87,49 @@ exports.getRequests = async (req, res) => {
               stack: error.stack,
             }
           : undefined,
+    });
+  }
+};
+
+exports.postRequest = async (req, res) => {
+  try {
+    const { userId, beginDate, endDate, plants, reason, description } =
+      req.body;
+
+    const adress = await Adress.findOne({
+      where: { user_id: userId },
+    });
+
+    if (!adress) {
+      return res.status(404).send({
+        message: "Aucune adresse trouvée pour cet utilisateur.",
+      });
+    }
+
+    const request = await Request.create({
+      user_id: userId,
+      begin_date: beginDate,
+      end_date: endDate,
+      reason: reason,
+      status: "pending",
+      description: description,
+      adress_id: adress.id,
+    });
+
+    for (let i = 0; i < plants.length; i++) {
+      const plantrequest = await PlantRequest.create({
+        plant_id: plants[i],
+        request_id: request.id,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+    }
+
+    res.json("requête créée avec succès.");
+  } catch (error) {
+    console.error("Erreur lors de la création de la requête:", error);
+    res.status(500).send({
+      message: "Une erreur s'est produite lors de la création de la requête.",
     });
   }
 };
