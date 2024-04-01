@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-  const PlantRequest = sequelize.define("PlantRequest", {
+  const PlantRequests = sequelize.define("PlantRequests", {
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
@@ -26,5 +26,5 @@ module.exports = (sequelize, DataTypes) => {
     });
   };
 
-  return PlantRequest;
+  return PlantRequests;
 };

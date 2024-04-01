@@ -1,5 +1,5 @@
 const e = require("express");
-const { Request, Adress, Picture, PlantRequest } = require("../models");
+const { Request, Adress, Picture, PlantRequests, User } = require("../models");
 const axios = require("axios");
 
 async function geocodeAddress(address) {
@@ -34,47 +34,97 @@ async function geocodeAddress(address) {
 exports.getRequests = async (req, res) => {
   try {
     const userId = req.params.userId;
-    const requestStatus = req.query.request_status;
-
-    const whereCondition = requestStatus ? { status: requestStatus } : {};
-
-    const requests = await Request.findAll({
-      where: { ...whereCondition, user_id: userId },
-      order: [["updatedAt", "DESC"]],
+    let user = await User.findOne({
+      where: { id: userId },
     });
-    const requestList = await Promise.all(
-      requests.map(async (request) => {
-        const adress = await Adress.findOne({
-          where: { id: request.adress_id },
-        });
-        const compactAdress = adress
-          ? `${adress.number} ${adress.street} ${adress.city} ${adress.country}`
-          : "adresse inconnue";
-        const convertedAdress = adress
-          ? await geocodeAddress(compactAdress)
-          : { latitude: null, longitude: null };
+    if (!user) {
+      return res.status(404).send({
+        message: "Aucun utilisateur trouvé pour cet identifiant.",
+      });
+    }
+    if (user.dataValues.role === "client") {
+      const requestStatus = req.query.request_status;
 
-        const picture = await Picture.findAll({
-          where: { request_id: request.dataValues.id },
-        });
+      const whereCondition = requestStatus ? { status: requestStatus } : {};
 
-        return {
-          ...request.dataValues,
-          adress: {
-            ...adress.dataValues,
-            full_adress: compactAdress,
-            latitude: convertedAdress.latitude,
-            longitude: convertedAdress.longitude,
-          },
-          plants: picture,
-          createdAt: undefined,
-          updatedAt: undefined,
-          userId: undefined,
-        };
-      })
-    );
+      const requests = await Request.findAll({
+        where: { ...whereCondition, user_id: userId },
+        order: [["updatedAt", "DESC"]],
+      });
+      const requestList = await Promise.all(
+        requests.map(async (request) => {
+          const adress = await Adress.findOne({
+            where: { id: request.adress_id },
+          });
+          const compactAdress = adress
+            ? `${adress.number} ${adress.street} ${adress.city} ${adress.country}`
+            : "adresse inconnue";
+          const convertedAdress = adress
+            ? await geocodeAddress(compactAdress)
+            : { latitude: null, longitude: null };
 
-    res.json(requestList);
+          const picture = await Picture.findAll({
+            where: { request_id: request.dataValues.id },
+          });
+
+          return {
+            ...request.dataValues,
+            adress: {
+              ...adress.dataValues,
+              full_adress: compactAdress,
+              latitude: convertedAdress.latitude,
+              longitude: convertedAdress.longitude,
+            },
+            plants: picture,
+            createdAt: undefined,
+            updatedAt: undefined,
+            userId: undefined,
+          };
+        })
+      );
+
+      res.json(requestList);
+    }
+    if (user.dataValues.role === "gardien") {
+      const requests = await Request.findAll({
+        where: { guard_id: userId },
+        order: [["updatedAt", "DESC"]],
+      });
+
+      const requestList = await Promise.all(
+        requests.map(async (request) => {
+          const adress = await Adress.findOne({
+            where: { id: request.adress_id },
+          });
+          const compactAdress = adress
+            ? `${adress.number} ${adress.street} ${adress.city} ${adress.country}`
+            : "adresse inconnue";
+          const convertedAdress = adress
+            ? await geocodeAddress(compactAdress)
+            : { latitude: null, longitude: null };
+
+          const picture = await Picture.findAll({
+            where: { request_id: request.dataValues.id },
+          });
+
+          return {
+            ...request.dataValues,
+            adress: {
+              ...adress.dataValues,
+              full_adress: compactAdress,
+              latitude: convertedAdress.latitude,
+              longitude: convertedAdress.longitude,
+            },
+            plants: picture,
+            createdAt: undefined,
+            updatedAt: undefined,
+            userId: undefined,
+          };
+        })
+      );
+
+      res.json(requestList);
+    }
   } catch (error) {
     console.error("Erreur lors de la récupération des requêtes:", error);
     res.status(500).send({
@@ -117,7 +167,7 @@ exports.postRequest = async (req, res) => {
     });
 
     for (let i = 0; i < plants.length; i++) {
-      const plantrequest = await PlantRequest.create({
+      const plantrequest = await PlantRequests.create({
         plant_id: plants[i],
         request_id: request.id,
         createdAt: new Date(),

@@ -25,12 +25,16 @@ module.exports = (sequelize, DataTypes) => {
     adress_id: {
       type: DataTypes.INTEGER,
     },
+    guard_id: {
+      type: DataTypes.INTEGER,
+    },
   });
 
   Request.associate = function (models) {
     Request.hasMany(models.Plant, { foreignKey: "request_id" });
     Request.hasMany(models.Picture, { foreignKey: "request_id" });
     Request.belongsTo(models.Adress, { foreignKey: "adress_id" });
+    Request.belongsTo(models.User, { foreignKey: "guard_id" });
   };
 
   return Request;
