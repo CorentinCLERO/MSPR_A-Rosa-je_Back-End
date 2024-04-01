@@ -141,6 +141,59 @@ exports.getRequests = async (req, res) => {
   }
 };
 
+exports.RequestAccept = async (req, res) => {
+  try {
+    const userId = req.body.userId;
+    const requestId = req.params.requestId;
+
+    let user = await User.findOne({
+      where: { id: userId },
+    });
+    if (!user) {
+      return res.status(404).send({
+        message: "Aucun utilisateur trouvé pour cet identifiant.",
+      });
+    }
+    if (user.dataValues.role != "gardien") {
+      return res.status(404).send({
+        message: "Vous devez être un gardien pour accepter une demande.",
+      });
+    }
+    if (user.dataValues.role === "gardien") {
+      const requests = await Request.findOne({
+        where: { id: requestId },
+      });
+      if (!requests) {
+        return res.status(404).send({
+          message: "Aucune demande trouvée pour cet identifiant.",
+        });
+      }
+      const request = await Request.update(
+        {
+          guard_id: userId,
+          status: "missions",
+        },
+        {
+          where: { id: requestId },
+        }
+      );
+      res.json("l’acceptation a bien été prise en compte");
+    }
+  } catch (error) {
+    console.error("Erreur lors de l'acceptation de la requête:", error);
+    res.status(500).send({
+      message: "Une erreur s'est produite lors de l'acceptation de la requête.",
+      error:
+        process.env.NODE_ENV === "development"
+          ? {
+              message: error.message,
+              stack: error.stack,
+            }
+          : undefined,
+    });
+  }
+};
+
 exports.getAllRequests = async (req, res) => {
   try {
     const requests = await Request.findAll({
