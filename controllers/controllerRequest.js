@@ -334,3 +334,23 @@ exports.addRequest = async (req, res) => {
     });
   }
 };
+
+exports.post = async (req, res) => {
+  try {
+    const request_id = req.params.requestId;
+    const { picture, message } = req.body;
+
+    const newPicture = await Picture.create({
+      url: picture,
+      message: message,
+      request_id: request_id,
+    });
+
+    res.json("post créé avec succès.");
+  } catch (error) {
+    console.error("Erreur lors de la création du post:", error);
+    res.status(500).send({
+      message: "Une erreur s'est produite lors de la création du post.",
+    });
+  }
+};
