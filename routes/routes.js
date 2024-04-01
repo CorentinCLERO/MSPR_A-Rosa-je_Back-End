@@ -24,6 +24,8 @@ module.exports = (app) => {
 
   const controllerRequest = require("../controllers/controllerRequest");
   router.get("/requests/:userId", controllerRequest.getRequests);
+  router.get("/requests", controllerRequest.getAllRequests);
+
   router.get("/request", controllerRequest.getRequest);
   router.post("/request", controllerRequest.postRequest);
 
