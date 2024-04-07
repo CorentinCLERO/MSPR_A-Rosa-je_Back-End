@@ -1,0 +1,11 @@
+services:
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:
+      - /node_modules
+    environment:
+      - PORT=8080
+    command: npm start
