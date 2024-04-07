@@ -1,4 +1,3 @@
-const e = require("express");
 const { Request, Adress, Picture, PlantRequests, User } = require("../models");
 const axios = require("axios");
 
@@ -26,7 +25,7 @@ async function geocodeAddress(address) {
   } catch (error) {
     throw new Error(
       "Erreur lors de la conversion de l'adresse en coordonnées : " +
-        error.message
+      error.message
     );
   }
 }
@@ -34,7 +33,7 @@ async function geocodeAddress(address) {
 exports.getRequests = async (req, res) => {
   try {
     const userId = req.params.userId;
-    let user = await User.findOne({
+    const user = await User.findOne({
       where: { id: userId },
     });
     if (!user) {
@@ -42,56 +41,54 @@ exports.getRequests = async (req, res) => {
         message: "Aucun utilisateur trouvé pour cet identifiant.",
       });
     }
-    if (user.dataValues.role === "client") {
-      const requestStatus = req.query.request_status;
+    const requestStatus = req.query.request_status;
 
-      const whereCondition = requestStatus ? { status: requestStatus } : {};
+    const whereCondition = requestStatus ? { status: requestStatus } : {};
 
-      const requests = await Request.findAll({
-        where: { ...whereCondition, user_id: userId },
-        order: [["updatedAt", "DESC"]],
-      });
-      const requestList = await Promise.all(
-        requests.map(async (request) => {
-          const adress = await Adress.findOne({
-            where: { id: request.adress_id },
-          });
-          const compactAdress = adress
-            ? `${adress.number} ${adress.street} ${adress.city} ${adress.country}`
-            : "adresse inconnue";
-          const convertedAdress = adress
-            ? await geocodeAddress(compactAdress)
-            : { latitude: null, longitude: null };
+    const requests = await Request.findAll({
+      where: { ...whereCondition, user_id: userId },
+      order: [["updatedAt", "DESC"]],
+    });
+    const requestList = await Promise.all(
+      requests.map(async (request) => {
+        const adress = await Adress.findOne({
+          where: { id: request.adress_id },
+        });
+        const compactAdress = adress
+          ? `${adress.number} ${adress.street} ${adress.city} ${adress.country}`
+          : "adresse inconnue";
+        const convertedAdress = adress
+          ? await geocodeAddress(compactAdress)
+          : { latitude: null, longitude: null };
 
-          const picture = await Picture.findAll({
-            where: { request_id: request.dataValues.id },
-          });
+        const picture = await Picture.findAll({
+          where: { request_id: request.dataValues.id },
+        });
 
-          return {
-            ...request.dataValues,
-            adress: {
-              ...adress.dataValues,
-              full_adress: compactAdress,
-              latitude: convertedAdress.latitude,
-              longitude: convertedAdress.longitude,
-            },
-            plants: picture,
-            createdAt: undefined,
-            updatedAt: undefined,
-            userId: undefined,
-          };
-        })
-      );
+        return {
+          ...request.dataValues,
+          adress: {
+            ...adress.dataValues,
+            full_adress: compactAdress,
+            latitude: convertedAdress.latitude,
+            longitude: convertedAdress.longitude,
+          },
+          plants: picture,
+          createdAt: undefined,
+          updatedAt: undefined,
+          userId: undefined,
+        };
+      })
+    );
 
-      res.json(requestList);
-    }
+    res.json(requestList);
     if (user.dataValues.role === "gardien") {
-      const requests = await Request.findAll({
+      await Request.findAll({
         where: { guard_id: userId },
         order: [["updatedAt", "DESC"]],
       });
 
-      const requestList = await Promise.all(
+      await Promise.all(
         requests.map(async (request) => {
           const adress = await Adress.findOne({
             where: { id: request.adress_id },
@@ -133,9 +130,9 @@ exports.getRequests = async (req, res) => {
       error:
         process.env.NODE_ENV === "development"
           ? {
-              message: error.message,
-              stack: error.stack,
-            }
+            message: error.message,
+            stack: error.stack,
+          }
           : undefined,
     });
   }
@@ -146,7 +143,7 @@ exports.RequestAccept = async (req, res) => {
     const userId = req.body.userId;
     const requestId = req.params.requestId;
 
-    let user = await User.findOne({
+    const user = await User.findOne({
       where: { id: userId },
     });
     if (!user) {
@@ -154,7 +151,7 @@ exports.RequestAccept = async (req, res) => {
         message: "Aucun utilisateur trouvé pour cet identifiant.",
       });
     }
-    if (user.dataValues.role != "gardien") {
+    if (user.dataValues.role !== "gardien") {
       return res.status(404).send({
         message: "Vous devez être un gardien pour accepter une demande.",
       });
@@ -168,7 +165,7 @@ exports.RequestAccept = async (req, res) => {
           message: "Aucune demande trouvée pour cet identifiant.",
         });
       }
-      const request = await Request.update(
+      await Request.update(
         {
           guard_id: userId,
           status: "missions",
@@ -186,9 +183,9 @@ exports.RequestAccept = async (req, res) => {
       error:
         process.env.NODE_ENV === "development"
           ? {
-              message: error.message,
-              stack: error.stack,
-            }
+            message: error.message,
+            stack: error.stack,
+          }
           : undefined,
     });
   }
@@ -241,9 +238,9 @@ exports.getAllRequests = async (req, res) => {
       error:
         process.env.NODE_ENV === "development"
           ? {
-              message: error.message,
-              stack: error.stack,
-            }
+            message: error.message,
+            stack: error.stack,
+          }
           : undefined,
     });
   }
@@ -275,7 +272,7 @@ exports.postRequest = async (req, res) => {
     });
 
     for (let i = 0; i < plants.length; i++) {
-      const plantrequest = await PlantRequests.create({
+      await PlantRequests.create({
         plant_id: plants[i],
         request_id: request.id,
         createdAt: new Date(),
@@ -315,32 +312,32 @@ exports.getRequest = async (req, res) => {
   }
 };
 
-exports.addRequest = async (req, res) => {
-  try {
-    const { userId, adress_id, request_id, variety, movable, message } =
-      req.body;
-  } catch (error) {
-    console.error("Erreur lors de la création de requête:", error);
-    res.status(500).send({
-      message:
-        "Une erreur s'est produite lors de la récupération des requêtes.",
-      error:
-        process.env.NODE_ENV === "development"
-          ? {
-              message: error.message,
-              stack: error.stack,
-            }
-          : undefined,
-    });
-  }
-};
+// exports.addRequest = async (req, res) => {
+//   try {
+//     const { userId, adress_id, request_id, variety, movable, message } =
+//       req.body;
+//   } catch (error) {
+//     console.error("Erreur lors de la création de requête:", error);
+//     res.status(500).send({
+//       message:
+//         "Une erreur s'est produite lors de la récupération des requêtes.",
+//       error:
+//         process.env.NODE_ENV === "development"
+//           ? {
+//             message: error.message,
+//             stack: error.stack,
+//           }
+//           : undefined,
+//     });
+//   }
+// };
 
 exports.post = async (req, res) => {
   try {
     const request_id = req.params.requestId;
     const { picture, message } = req.body;
 
-    const newPicture = await Picture.create({
+    await Picture.create({
       url: picture,
       message: message,
       request_id: request_id,
