@@ -46,5 +46,9 @@ module.exports = (app) => {
   const controllerUser = require("../controllers/controllerUser");
   router.post("/user", controllerUser.createUser);
 
+  //ADRESS ROUTES
+  const controllerAdress = require("../controllers/controllerAdress");
+  router.get("/adresses/:userId", controllerAdress.getAdresses);
+
   app.use("/api", router);
 };
