@@ -248,25 +248,16 @@ exports.getAllRequests = async (req, res) => {
 
 exports.postRequest = async (req, res) => {
   try {
-    const { userId, beginDate, endDate, plants, reason, description } =
+    console.log("body", req.body);
+    const { userId, begin_date, end_date, plants, reason, description, adress } =
       req.body;
-
-    const adress = await Adress.findOne({
-      where: { user_id: userId },
-    });
-
-    if (!adress) {
-      return res.status(404).send({
-        message: "Aucune adresse trouvée pour cet utilisateur.",
-      });
-    }
 
     const request = await Request.create({
       user_id: userId,
-      begin_date: beginDate,
-      end_date: endDate,
+      begin_date: begin_date,
+      end_date: end_date,
       reason: reason,
-      status: "pending",
+      status: "slot",
       description: description,
       adress_id: adress.id,
     });
@@ -284,7 +275,15 @@ exports.postRequest = async (req, res) => {
   } catch (error) {
     console.error("Erreur lors de la création de la requête:", error);
     res.status(500).send({
-      message: "Une erreur s'est produite lors de la création de la requête.",
+      message:
+        "Une erreur s'est produite lors de la récupération des demandes d'aide.",
+      error:
+        process.env.NODE_ENV === "development"
+          ? {
+            message: error.message,
+            stack: error.stack,
+          }
+          : undefined,
     });
   }
 };

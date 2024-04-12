@@ -8,17 +8,17 @@ exports.getHelpRequests = async (req, res) => {
     if (!user) {
       return res.status(404).send("Utilisateur non trouvé.");
     }
-    if (user.role !== "gardien") {
-      let helpRequests = await HelpRequest.findAll({
-        where: { botanist_id: user.id },
-      });
-    } else {
-      const helpRequests = await HelpRequest.findAll({
-        where: { user_id: user.id },
-      });
+    // if (user.role !== "gardien") {
+    //   let helpRequests = await HelpRequest.findAll({
+    //     where: { botanist_id: user.id },
+    //   });
+    // } else {
+    const helpRequests = await HelpRequest.findAll({
+      where: { user_id: user.id },
+    });
 
-      res.json(helpRequests);
-    }
+    res.json(helpRequests);
+    // }
   } catch (error) {
     console.error(
       "Erreur lors de la récupération des demandes d'aide :",
@@ -30,9 +30,9 @@ exports.getHelpRequests = async (req, res) => {
       error:
         process.env.NODE_ENV === "development"
           ? {
-              message: error.message,
-              stack: error.stack,
-            }
+            message: error.message,
+            stack: error.stack,
+          }
           : undefined,
     });
   }
@@ -56,9 +56,9 @@ exports.getHelpRequestInfo = async (req, res) => {
       error:
         process.env.NODE_ENV === "development"
           ? {
-              message: error.message,
-              stack: error.stack,
-            }
+            message: error.message,
+            stack: error.stack,
+          }
           : undefined,
     });
   }
@@ -88,9 +88,9 @@ exports.postHelpRequest = async (req, res) => {
       error:
         process.env.NODE_ENV === "development"
           ? {
-              message: error.message,
-              stack: error.stack,
-            }
+            message: error.message,
+            stack: error.stack,
+          }
           : undefined,
     });
   }
@@ -124,9 +124,9 @@ exports.postHelpRequestAnswer = async (req, res) => {
       error:
         process.env.NODE_ENV === "development"
           ? {
-              message: error.message,
-              stack: error.stack,
-            }
+            message: error.message,
+            stack: error.stack,
+          }
           : undefined,
     });
   }
