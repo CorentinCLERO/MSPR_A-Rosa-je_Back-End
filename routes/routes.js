@@ -30,6 +30,7 @@ module.exports = (app) => {
   router.get("/request", controllerRequest.getRequest);
   router.post("/request", controllerRequest.postRequest);
   router.post("/request/:requestId", controllerRequest.RequestAccept);
+  router.delete("/request/:requestId", controllerRequest.deleteRequest);
   router.post("/post/:requestId", controllerRequest.post);
 
   //HELP REQUESTS ROUTES

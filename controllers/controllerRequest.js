@@ -1,4 +1,11 @@
-const { Request, Adress, Picture, PlantRequests, User } = require("../models");
+const {
+  Request,
+  Requests,
+  Adress,
+  Picture,
+  PlantRequests,
+  User,
+} = require("../models");
 const axios = require("axios");
 
 async function geocodeAddress(address) {
@@ -25,7 +32,7 @@ async function geocodeAddress(address) {
   } catch (error) {
     throw new Error(
       "Erreur lors de la conversion de l'adresse en coordonnées : " +
-      error.message
+        error.message
     );
   }
 }
@@ -130,9 +137,9 @@ exports.getRequests = async (req, res) => {
       error:
         process.env.NODE_ENV === "development"
           ? {
-            message: error.message,
-            stack: error.stack,
-          }
+              message: error.message,
+              stack: error.stack,
+            }
           : undefined,
     });
   }
@@ -183,9 +190,9 @@ exports.RequestAccept = async (req, res) => {
       error:
         process.env.NODE_ENV === "development"
           ? {
-            message: error.message,
-            stack: error.stack,
-          }
+              message: error.message,
+              stack: error.stack,
+            }
           : undefined,
     });
   }
@@ -238,9 +245,9 @@ exports.getAllRequests = async (req, res) => {
       error:
         process.env.NODE_ENV === "development"
           ? {
-            message: error.message,
-            stack: error.stack,
-          }
+              message: error.message,
+              stack: error.stack,
+            }
           : undefined,
     });
   }
@@ -285,6 +292,36 @@ exports.postRequest = async (req, res) => {
     console.error("Erreur lors de la création de la requête:", error);
     res.status(500).send({
       message: "Une erreur s'est produite lors de la création de la requête.",
+    });
+  }
+};
+
+exports.deleteRequest = async (req, res) => {
+  try {
+    const requestId = req.params.requestId;
+
+    //On vérifie que la requête existe
+    const request = await Request.findOne({
+      where: { id: requestId },
+    });
+
+    //On supprime la requête en base de données
+    if (!request) {
+      return res.status(404).send({
+        message: "Aucune requête trouvée pour cet identifiant.",
+      });
+    } else {
+      await Request.destroy({
+        where: { id: requestId },
+      });
+
+      res.json("requête supprimée avec succès.");
+    }
+  } catch (error) {
+    console.error("Erreur lors de la suppression de la requête:", error);
+    res.status(500).send({
+      message:
+        "Une erreur s'est produite lors de la suppression de la requête.",
     });
   }
 };
