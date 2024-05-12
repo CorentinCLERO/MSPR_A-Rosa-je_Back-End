@@ -2,6 +2,7 @@ const multer = require("multer");
 const router = require("express").Router();
 const cloudinary = require("../config/configCloudinary");
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
+const { authRole } = require("../middleware/authentifactionRole.js");
 
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
@@ -18,16 +19,16 @@ module.exports = (app) => {
 
   //PLANTS ROUTES
   const controllerPlant = require("../controllers/controllerPlant");
-  router.get("/plants/:userId", controllerPlant.getUserPlants);
+  router.get("/plants/:userId", authRole("owner"), controllerPlant.getUserPlants);
   const parser = multer({ storage: storage });
   router.post("/plant", parser.single("photo"), controllerPlant.addPlant);
   router.delete("/plant/:plantId", controllerPlant.deletePlant);
 
   //REQUESTS ROUTES
   const controllerRequest = require("../controllers/controllerRequest");
-  router.get("/requests/:userId", controllerRequest.getRequests);
-  router.get("/requests", controllerRequest.getAllRequests);
-  router.get("/request", controllerRequest.getRequest);
+  router.get("/requests/:userId", authRole("owner"), controllerRequest.getRequests);
+  router.get("/requests", authRole("keeper"), controllerRequest.getAllRequests);
+  router.get("/request", controllerRequest.getRequest); // ?????????
   router.post("/request", controllerRequest.postRequest);
   router.post("/request/:requestId", controllerRequest.RequestAccept);
   router.delete("/request/:requestId", controllerRequest.deleteRequest);
@@ -46,10 +47,17 @@ module.exports = (app) => {
   //USER ROUTES
   const controllerUser = require("../controllers/controllerUser");
   router.post("/user", controllerUser.createUser);
+  router.post("/login_user", controllerUser.loginUser);
+  router.post("/verify_token", controllerUser.verifyToken);
+  router.get("/adminBearerToken", controllerUser.getAdminBearerToken);
 
   //ADRESS ROUTES
   const controllerAdress = require("../controllers/controllerAdress");
-  router.get("/adresses/:userId", controllerAdress.getAdresses);
+  router.get("/adresses/:userId", authRole("owner"), controllerAdress.getAdresses);
+
+  //DENYJWT ROUTES
+  const controllerDenyJWT = require("../controllers/controllerDenyJWT");
+  router.post("/denyjwt", controllerDenyJWT.addDenyjwt);
 
   app.use("/api", router);
 };

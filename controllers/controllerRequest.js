@@ -32,7 +32,7 @@ async function geocodeAddress(address) {
   } catch (error) {
     throw new Error(
       "Erreur lors de la conversion de l'adresse en coordonnées : " +
-        error.message
+      error.message
     );
   }
 }
@@ -89,46 +89,6 @@ exports.getRequests = async (req, res) => {
     );
 
     res.json(requestList);
-    if (user.dataValues.role === "gardien") {
-      await Request.findAll({
-        where: { guard_id: userId },
-        order: [["updatedAt", "DESC"]],
-      });
-
-      await Promise.all(
-        requests.map(async (request) => {
-          const adress = await Adress.findOne({
-            where: { id: request.adress_id },
-          });
-          const compactAdress = adress
-            ? `${adress.number} ${adress.street} ${adress.city} ${adress.country}`
-            : "adresse inconnue";
-          const convertedAdress = adress
-            ? await geocodeAddress(compactAdress)
-            : { latitude: null, longitude: null };
-
-          const picture = await Picture.findAll({
-            where: { request_id: request.dataValues.id },
-          });
-
-          return {
-            ...request.dataValues,
-            adress: {
-              ...adress.dataValues,
-              full_adress: compactAdress,
-              latitude: convertedAdress.latitude,
-              longitude: convertedAdress.longitude,
-            },
-            plants: picture,
-            createdAt: undefined,
-            updatedAt: undefined,
-            userId: undefined,
-          };
-        })
-      );
-
-      res.json(requestList);
-    }
   } catch (error) {
     console.error("Erreur lors de la récupération des requêtes:", error);
     res.status(500).send({
@@ -137,9 +97,9 @@ exports.getRequests = async (req, res) => {
       error:
         process.env.NODE_ENV === "development"
           ? {
-              message: error.message,
-              stack: error.stack,
-            }
+            message: error.message,
+            stack: error.stack,
+          }
           : undefined,
     });
   }
@@ -190,18 +150,19 @@ exports.RequestAccept = async (req, res) => {
       error:
         process.env.NODE_ENV === "development"
           ? {
-              message: error.message,
-              stack: error.stack,
-            }
+            message: error.message,
+            stack: error.stack,
+          }
           : undefined,
     });
   }
 };
 
+
 exports.getAllRequests = async (req, res) => {
   try {
     const requests = await Request.findAll({
-      where: { status: "pending" },
+      // where: { status: ... },
       order: [["updatedAt", "DESC"]],
     });
     const requestList = await Promise.all(
@@ -240,18 +201,15 @@ exports.getAllRequests = async (req, res) => {
   } catch (error) {
     console.error("Erreur lors de la récupération des requêtes:", error);
     res.status(500).send({
-      message:
-        "Une erreur s'est produite lors de la récupération des requêtes.",
-      error:
-        process.env.NODE_ENV === "development"
-          ? {
-              message: error.message,
-              stack: error.stack,
-            }
-          : undefined,
+      message: "Une erreur s'est produite lors de la récupération des requêtes.",
+      error: process.env.NODE_ENV === "development" ? {
+        message: error.message,
+        stack: error.stack,
+      } : undefined,
     });
   }
 };
+
 
 exports.postRequest = async (req, res) => {
   try {
@@ -278,7 +236,7 @@ exports.postRequest = async (req, res) => {
       });
     }
 
-    res.json("requête créée avec succès.");
+    res.json({ message: "requête créée avec succès.", requestId: request.id });
   } catch (error) {
     console.error("Erreur lors de la création de la requête:", error);
     res.status(500).send({
