@@ -28,7 +28,7 @@ module.exports = (app) => {
   const controllerRequest = require("../controllers/controllerRequest");
   router.get("/requests/:userId", authRole("owner"), controllerRequest.getRequests);
   router.get("/requests", authRole("keeper"), controllerRequest.getAllRequests);
-  router.get("/request", controllerRequest.getRequest); // ?????????
+  router.get("/request", controllerRequest.getRequest); ////////
   router.post("/request", controllerRequest.postRequest);
   router.post("/request/:requestId", controllerRequest.RequestAccept);
   router.delete("/request/:requestId", controllerRequest.deleteRequest);
@@ -37,6 +37,7 @@ module.exports = (app) => {
   //HELP REQUESTS ROUTES
   const controllerHelpRequest = require("../controllers/controllerHelpRequest");
   router.get("/plantsos/:userId", controllerHelpRequest.getHelpRequests);
+  router.get("/plantsos", controllerHelpRequest.getAllHelpRequests);
   router.get("/plantsos/:plantSosId", controllerHelpRequest.getHelpRequestInfo);
   router.post("/plantsos", controllerHelpRequest.postHelpRequest);
   router.post(
@@ -46,14 +47,17 @@ module.exports = (app) => {
 
   //USER ROUTES
   const controllerUser = require("../controllers/controllerUser");
-  router.post("/user", controllerUser.createUser);
+  router.post("/user", controllerUser.createUser); ///////
   router.post("/login_user", controllerUser.loginUser);
   router.post("/verify_token", controllerUser.verifyToken);
+  router.patch("/user/:id", authRole("owner"), controllerUser.modifyUser);
   router.get("/adminBearerToken", controllerUser.getAdminBearerToken);
 
   //ADRESS ROUTES
   const controllerAdress = require("../controllers/controllerAdress");
   router.get("/adresses/:userId", authRole("owner"), controllerAdress.getAdresses);
+  router.post("/adresse/:userId", authRole("owner"), controllerAdress.addAddress);
+  router.delete("/adresse/:addressId", authRole("owner"), controllerAdress.deleteAddress);
 
   //DENYJWT ROUTES
   const controllerDenyJWT = require("../controllers/controllerDenyJWT");

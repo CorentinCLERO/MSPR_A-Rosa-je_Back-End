@@ -38,6 +38,30 @@ exports.getHelpRequests = async (req, res) => {
   }
 };
 
+exports.getAllHelpRequests = async (req, res) => {
+  try {
+    const helpRequests = await HelpRequest.findAll();
+
+    res.json(helpRequests);
+  } catch (error) {
+    console.error(
+      "Erreur lors de la récupération des demandes d'aide :",
+      error
+    );
+    res.status(500).send({
+      message:
+        "Une erreur s'est produite lors de la récupération des demandes d'aide.",
+      error:
+        process.env.NODE_ENV === "development"
+          ? {
+            message: error.message,
+            stack: error.stack,
+          }
+          : undefined,
+    });
+  }
+};
+
 exports.getHelpRequestInfo = async (req, res) => {
   try {
     const plantSosId = req.params.plantSosId;
@@ -101,7 +125,7 @@ exports.postHelpRequestAnswer = async (req, res) => {
     const plantSosId = req.params.plantSosId;
     const { answer } = req.body;
 
-    let plantSos = await HelpRequest.findByPk(plantSosId);
+    const plantSos = await HelpRequest.findByPk(plantSosId);
 
     if (!plantSos) {
       return res.status(404).send("plantsOS non trouvée.");
