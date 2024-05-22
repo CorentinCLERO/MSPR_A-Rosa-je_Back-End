@@ -6,7 +6,9 @@ const axios = require("axios");
 
 app.use(express.json());
 
-require("./routes/routes.js")(app);
+require("./routes/routesMobile.js")(app);
+require("./routes/routesAdmin.js")(app);
+require("./routes/routesConnection.js")(app);
 
 const sequelize = new Sequelize({
   sync: false,
