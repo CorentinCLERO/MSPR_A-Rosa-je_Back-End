@@ -214,7 +214,7 @@ exports.modifyUser = async (req, res) => {
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
-
+    
     if (email !== undefined) user.email = email;
     if (botaniste_id !== undefined) user.botaniste_id = botaniste_id;
     if (password !== undefined) user.password = password;
@@ -226,10 +226,10 @@ exports.modifyUser = async (req, res) => {
     if (wantToBeKeeper !== undefined) user.wantToBeKeeper = wantToBeKeeper;
     if (picture_profile !== undefined) user.picture_profile = picture_profile;
     if (validatePrivacyPolicy !== undefined) user.validatePrivacyPolicy = validatePrivacyPolicy;
-
+    
     await user.save();
-
-    res.status(200).json(user);
+    
+    res.status(200).json({user: user.dataValues});
   } catch (error) {
     res.status(500).json({ error: "An error occurred while updating the user." });
   }
