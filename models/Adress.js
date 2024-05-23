@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-  const Adress = sequelize.define('Adress', {
+  const Adress = sequelize.define("Adress", {
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
@@ -23,8 +23,8 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   Adress.associate = function(models) {
-    Adress.hasMany(models.Request, { foreignKey: 'adress_id' });
-    Adress.hasMany(models.Plant, { foreignKey: 'adress_id' });
+    Adress.hasMany(models.Request, { foreignKey: "adress_id" });
+    Adress.hasMany(models.Plant, { foreignKey: "adress_id" });
   };
 
   return Adress;

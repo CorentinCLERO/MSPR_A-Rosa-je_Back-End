@@ -16,7 +16,7 @@ afterAll(done => {
 
 describe("Test API route", () => {
   it("should return true for the first row state", async () => {
-    const response = await request(server).get("/api/test");
+    const response = await request(server).get("/api/mobile/test");
     expect(response.statusCode).toBe(200);
     expect(response.body[0].state).toBe(true);
   });
