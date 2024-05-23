@@ -48,6 +48,7 @@ module.exports = (app) => {
   // router.post("/login_user", controllerUser.loginUser);
   // router.post("/verify_token", controllerUser.verifyToken);
   router.patch("/user/:id", authRole("owner"), controllerUser.modifyUser);
+  router.delete("/user/:id", authRole("owner"), controllerUser.deleteUser);
   // router.get("/adminBearerToken", controllerUser.getAdminBearerToken);
 
   //ADRESS ROUTES

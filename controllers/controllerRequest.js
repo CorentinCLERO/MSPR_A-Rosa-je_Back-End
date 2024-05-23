@@ -1,6 +1,5 @@
 const {
   Request,
-  Requests,
   Adress,
   Picture,
   PlantRequests,
@@ -90,7 +89,6 @@ exports.getRequests = async (req, res) => {
 
     res.json(requestList);
   } catch (error) {
-    console.error("Erreur lors de la récupération des requêtes:", error);
     res.status(500).send({
       message:
         "Une erreur s'est produite lors de la récupération des requêtes.",
@@ -144,7 +142,6 @@ exports.RequestAccept = async (req, res) => {
       res.json("l’acceptation a bien été prise en compte");
     }
   } catch (error) {
-    console.error("Erreur lors de l'acceptation de la requête:", error);
     res.status(500).send({
       message: "Une erreur s'est produite lors de l'acceptation de la requête.",
       error:
@@ -162,7 +159,6 @@ exports.RequestAccept = async (req, res) => {
 exports.getAllRequests = async (req, res) => {
   try {
     const requests = await Request.findAll({
-      // where: { status: ... },
       order: [["updatedAt", "DESC"]],
     });
     const requestList = await Promise.all(
@@ -199,7 +195,6 @@ exports.getAllRequests = async (req, res) => {
 
     res.json(requestList);
   } catch (error) {
-    console.error("Erreur lors de la récupération des requêtes:", error);
     res.status(500).send({
       message: "Une erreur s'est produite lors de la récupération des requêtes.",
       error: process.env.NODE_ENV === "development" ? {
@@ -213,7 +208,6 @@ exports.getAllRequests = async (req, res) => {
 
 exports.postRequest = async (req, res) => {
   try {
-    console.log("body", req.body);
     const { userId, begin_date, end_date, plants, reason, description, adress } =
       req.body;
 
@@ -238,7 +232,6 @@ exports.postRequest = async (req, res) => {
 
     res.json({ message: "requête créée avec succès.", requestId: request.id });
   } catch (error) {
-    console.error("Erreur lors de la création de la requête:", error);
     res.status(500).send({
       message:
         "Une erreur s'est produite lors de la récupération des demandes d'aide.",
@@ -257,12 +250,10 @@ exports.deleteRequest = async (req, res) => {
   try {
     const requestId = req.params.requestId;
 
-    //On vérifie que la requête existe
     const request = await Request.findOne({
       where: { id: requestId },
     });
 
-    //On supprime la requête en base de données
     if (!request) {
       return res.status(404).send({
         message: "Aucune requête trouvée pour cet identifiant.",
@@ -275,7 +266,6 @@ exports.deleteRequest = async (req, res) => {
       res.json("requête supprimée avec succès.");
     }
   } catch (error) {
-    console.error("Erreur lors de la suppression de la requête:", error);
     res.status(500).send({
       message:
         "Une erreur s'est produite lors de la suppression de la requête.",
@@ -298,33 +288,12 @@ exports.getRequest = async (req, res) => {
       return res.json(request);
     }
   } catch (error) {
-    console.error("Erreur lors de la récupération de la requête", error);
     res.status(500).send({
       message:
         "Une erreur s'est produite lors de la récupération de la requête.",
     });
   }
 };
-
-// exports.addRequest = async (req, res) => {
-//   try {
-//     const { userId, adress_id, request_id, variety, movable, message } =
-//       req.body;
-//   } catch (error) {
-//     console.error("Erreur lors de la création de requête:", error);
-//     res.status(500).send({
-//       message:
-//         "Une erreur s'est produite lors de la récupération des requêtes.",
-//       error:
-//         process.env.NODE_ENV === "development"
-//           ? {
-//             message: error.message,
-//             stack: error.stack,
-//           }
-//           : undefined,
-//     });
-//   }
-// };
 
 exports.post = async (req, res) => {
   try {
@@ -339,7 +308,6 @@ exports.post = async (req, res) => {
 
     res.json("post créé avec succès.");
   } catch (error) {
-    console.error("Erreur lors de la création du post:", error);
     res.status(500).send({
       message: "Une erreur s'est produite lors de la création du post.",
     });

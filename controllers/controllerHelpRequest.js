@@ -8,22 +8,12 @@ exports.getHelpRequests = async (req, res) => {
     if (!user) {
       return res.status(404).send("Utilisateur non trouvé.");
     }
-    // if (user.role !== "gardien") {
-    //   let helpRequests = await HelpRequest.findAll({
-    //     where: { botanist_id: user.id },
-    //   });
-    // } else {
     const helpRequests = await HelpRequest.findAll({
       where: { user_id: user.id },
     });
 
     res.json(helpRequests);
-    // }
   } catch (error) {
-    console.error(
-      "Erreur lors de la récupération des demandes d'aide :",
-      error
-    );
     res.status(500).send({
       message:
         "Une erreur s'est produite lors de la récupération des demandes d'aide.",
@@ -44,10 +34,6 @@ exports.getAllHelpRequests = async (req, res) => {
 
     res.json(helpRequests);
   } catch (error) {
-    console.error(
-      "Erreur lors de la récupération des demandes d'aide :",
-      error
-    );
     res.status(500).send({
       message:
         "Une erreur s'est produite lors de la récupération des demandes d'aide.",
@@ -70,10 +56,6 @@ exports.getHelpRequestInfo = async (req, res) => {
 
     res.json(plantSos);
   } catch (error) {
-    console.error(
-      "Erreur lors de la récupération des demandes d'aide :",
-      error
-    );
     res.status(500).send({
       message:
         "Une erreur s'est produite lors de la récupération des demandes d'aide.",
@@ -92,7 +74,7 @@ exports.postHelpRequest = async (req, res) => {
   try {
     const { title, description, userId } = req.body;
 
-    const plantSos = await HelpRequest.create({
+    await HelpRequest.create({
       title: title,
       description: description,
       user_id: userId,
@@ -102,10 +84,6 @@ exports.postHelpRequest = async (req, res) => {
 
     res.json("la plantSos a bien été créée");
   } catch (error) {
-    console.error(
-      "Erreur lors de la récupération des demandes d'aide :",
-      error
-    );
     res.status(500).send({
       message:
         "Une erreur s'est produite lors de la récupération des demandes d'aide.",
@@ -138,10 +116,6 @@ exports.postHelpRequestAnswer = async (req, res) => {
 
     res.json("le commentaire a bien été envoyé");
   } catch (error) {
-    console.error(
-      "Erreur lors de la récupération des demandes d'aide :",
-      error
-    );
     res.status(500).send({
       message:
         "Une erreur s'est produite lors de la récupération des demandes d'aide.",

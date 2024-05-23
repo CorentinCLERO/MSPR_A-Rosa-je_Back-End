@@ -32,10 +32,6 @@ exports.getAdresses = async (req, res) => {
 
     res.status(200).json(UserAdressesWithLongLat);
   } catch (error) {
-    console.error(
-      "Erreur lors de la récupération des demandes d'aide :",
-      error
-    );
     res.status(500).send({
       message:
         "Une erreur s'est produite lors de la récupération des demandes d'aide.",
@@ -91,7 +87,6 @@ exports.addAddress = async (req, res) => {
 
     res.status(201).json(newAddress);
   } catch (error) {
-    console.error("Erreur lors de l'ajout de l'adresse :", error);
     res.status(500).send({
       message: "Une erreur s'est produite lors de l'ajout de l'adresse.",
       error:
@@ -118,7 +113,6 @@ exports.deleteAddress = async (req, res) => {
 
     res.status(200).send("Adresse supprimée avec succès.");
   } catch (error) {
-    console.error("Erreur lors de la suppression de l'adresse :", error);
     res.status(500).send({
       message: "Une erreur s'est produite lors de la suppression de l'adresse.",
       error:

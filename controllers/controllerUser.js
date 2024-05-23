@@ -1,4 +1,4 @@
-const { User, DenyJWT } = require("../models"); // Assurez-vous que ce chemin est correct
+const { User, DenyJWT } = require("../models");
 const { OAuth2Client } = require("google-auth-library");
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID_ENV);
 const jwt = require("jsonwebtoken");
@@ -6,17 +6,34 @@ const bcrypt = require("bcrypt");
 
 const SALT_ROUNDS = 10;
 
+exports.getAllUser = async (req, res) => {
+  try {
+    const users = await User.findAll({
+      attributes: {
+        exclude: ["password"],
+      },
+    });
+    res.status(200).json(users);
+  } catch (error) {
+    res.status(500).send({
+      message: "Une erreur s'est produite lors de la récupération des utilisateurs.",
+      error: process.env.NODE_ENV === "development" ? {
+        message: error.message,
+        stack: error.stack,
+      } : undefined,
+    });
+  }
+};
+
 exports.createUser = async (req, res) => {
   try {
     const { email, password, pseudo, role, firstname, lastname } = req.body;
 
-    // Vérifier si l'utilisateur existe déjà
     const existingUser = await User.findOne({ where: { email } });
     if (existingUser) {
       return res.status(400).send("L'utilisateur existe déjà");
     }
     
-    // Créer un nouvel utilisateur
     await User.create({
       email,
       password,
@@ -41,7 +58,6 @@ exports.createUser = async (req, res) => {
 exports.loginUser = async (req, res) => {
   try {
     const { idToken, email, password } = req.body;
-    console.log(req.body);
 
     if (idToken) {
       const payload = await verifyToken(idToken);
@@ -102,7 +118,6 @@ exports.loginUser = async (req, res) => {
       return res.status(400).send("Requête invalide : fournissez soit un idToken, soit un email et un mot de passe");
     }
   } catch (error) {
-    console.error("Erreur lors de la connexion de l'utilisateur :", error);
     return res.status(500).send({
       message: "Erreur lors de la connexion de l'utilisateur",
       error: process.env.NODE_ENV === "development" ? {
@@ -216,8 +231,25 @@ exports.modifyUser = async (req, res) => {
 
     res.status(200).json(user);
   } catch (error) {
-    console.error("Error updating user:", error);
     res.status(500).json({ error: "An error occurred while updating the user." });
+  }
+};
+
+exports.deleteUser = async (req, res) => {
+  const userId = req.params.id;
+
+  try {
+    const user = await User.findByPk(userId);
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    await user.destroy();
+
+    res.status(200).json({ message: "User deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ error: "An error occurred while deleting the user." });
   }
 };
 
