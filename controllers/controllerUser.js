@@ -168,6 +168,81 @@ exports.verifyToken = async (req, res) => {
   }
 };
 
+exports.loginAdmin = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
+      return res.status(401).send("Email ou mot de passe incorrect");
+    }
+
+    const validPassword = await bcrypt.compare(password, user.password);
+    if (!validPassword) {
+      return res.status(401).send("Email ou mot de passe incorrect");
+    }
+
+    if (user.role !== "admin") {
+      return res.status(401).send("Vous n'êtes pas autorisé à accéder à cette ressource");
+    }
+
+    const userToken = generateJWT(user);
+    res.status(201).send({ message: "Utilisateur connecté avec succès", token: userToken, role: user.role, id: user.id, user: user.dataValues });
+  } catch (error) {
+    res.status(500).send({
+      message: "Erreur lors de la connexion de l'utilisateur",
+      error: process.env.NODE_ENV === "development" ? {
+        message: error.message,
+        stack: error.stack,
+        details: error.details || "Aucun détail supplémentaire"
+      } : undefined
+    });
+  }
+};
+
+exports.verifyAdminToken = async (req, res) => {
+  try {
+    const { token } = req.body;
+
+    const tokenInDenyList = await DenyJWT.findOne({ where: { token } });
+    if (tokenInDenyList) {
+      return res.status(401).send({
+        message: "Le token est invalidé et ne peut plus être utilisé"
+      });
+    }
+
+    jwt.verify(token, process.env.SECRET_JWT, async (err, decoded) => {
+      if (err) {
+        return res.status(401).send({
+          message: "Échec de la vérification du token",
+          error: err.message
+        });
+      }
+
+      const user = await User.findOne({ where: { email: decoded.email } });
+      if (!user || user.role !== "admin") {
+        return res.status(401).send("Vous n'êtes pas autorisé à accéder à cette ressource");
+      }
+
+      res.status(200).send({
+        message: "Token vérifié avec succès",
+        ...decoded,
+        user: user.dataValues
+      });
+    });
+
+  } catch (error) {
+    res.status(500).send({
+      message: "Erreur lors de la vérification du token",
+      error: process.env.NODE_ENV === "development" ? {
+        message: error.message,
+        stack: error.stack,
+        details: error.details || "Aucun détail supplémentaire"
+      } : undefined
+    });
+  }
+};
+
 exports.getAdminBearerToken = async (req, res) => {
   try {
     const user = {
