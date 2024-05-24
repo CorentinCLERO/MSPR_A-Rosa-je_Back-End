@@ -12,7 +12,7 @@ const allowedOrigins = Object.keys(process.env)
 
 const corsOptions = {
   origin: (origin, callback) => {
-    if (allowedOrigins.includes(origin)) {
+    if (!origin || allowedOrigins.includes(origin)) {
       return callback(null, true);
     } else {
       return callback(new Error("Not allowed by CORS"));
