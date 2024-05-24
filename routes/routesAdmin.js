@@ -6,6 +6,8 @@ module.exports = (app) => {
   const controllerUser = require("../controllers/controllerUser.js");
   router.get("/users", authRole("admin"), controllerUser.getAllUser);
   router.post("/user", authRole("admin"), controllerUser.createUser);
+  router.post("/login_admin", controllerUser.loginAdmin);
+  router.post("/verify_admin_token", controllerUser.verifyAdminToken);
   router.patch("/user/:id", authRole("admin"), controllerUser.modifyUser);
   router.delete("/user/:id", authRole("admin"), controllerUser.deleteUser);
   router.get("/adminBearerToken", controllerUser.getAdminBearerToken);
