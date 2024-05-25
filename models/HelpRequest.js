@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-  const HelpRequest = sequelize.define('HelpRequest', {
+  const HelpRequest = sequelize.define("HelpRequest", {
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
@@ -23,7 +23,7 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   HelpRequest.associate = function(models) {
-    HelpRequest.hasMany(models.Picture, { foreignKey: 'helpRequest_id' });
+    HelpRequest.hasMany(models.Picture, { foreignKey: "helpRequest_id" });
   };
 
   return HelpRequest;

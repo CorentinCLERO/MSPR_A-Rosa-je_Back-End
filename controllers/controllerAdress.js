@@ -32,13 +32,89 @@ exports.getAdresses = async (req, res) => {
 
     res.status(200).json(UserAdressesWithLongLat);
   } catch (error) {
-    console.error(
-      "Erreur lors de la récupération des demandes d'aide :",
-      error
-    );
     res.status(500).send({
       message:
         "Une erreur s'est produite lors de la récupération des demandes d'aide.",
+      error:
+        process.env.NODE_ENV === "development"
+          ? {
+            message: error.message,
+            stack: error.stack,
+          }
+          : undefined,
+    });
+  }
+};
+
+exports.addAddress = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const { number, street, city, country } = req.body;
+
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).send("Utilisateur non trouvé.");
+    }
+
+    const existingAddress = await Adress.findOne({
+      where: {
+        user_id: userId,
+        number,
+        street,
+        city,
+        country,
+      },
+    });
+
+    if (existingAddress) {
+      return res.status(409).send("Cette adresse existe déjà.");
+    }
+
+    const newAddress = await Adress.create({
+      user_id: userId,
+      number,
+      street,
+      city,
+      country,
+    });
+
+    const compactAddress = `${newAddress.number} ${newAddress.street} ${newAddress.city} ${newAddress.country}`;
+    const convertedAddress = await geocodeAddress(compactAddress);
+
+    newAddress.latitude = convertedAddress.latitude;
+    newAddress.longitude = convertedAddress.longitude;
+    await newAddress.save();
+
+    res.status(201).json(newAddress);
+  } catch (error) {
+    res.status(500).send({
+      message: "Une erreur s'est produite lors de l'ajout de l'adresse.",
+      error:
+        process.env.NODE_ENV === "development"
+          ? {
+            message: error.message,
+            stack: error.stack,
+          }
+          : undefined,
+    });
+  }
+};
+
+exports.deleteAddress = async (req, res) => {
+  try {
+    const addressId = req.params.addressId;
+
+    const address = await Adress.findByPk(addressId);
+    if (!address) {
+      return res.status(404).send("Adresse non trouvée.");
+    }
+
+    await address.destroy();
+
+    res.status(200).send("Adresse supprimée avec succès.");
+  } catch (error) {
+    res.status(500).send({
+      message: "Une erreur s'est produite lors de la suppression de l'adresse.",
       error:
         process.env.NODE_ENV === "development"
           ? {

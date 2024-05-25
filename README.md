@@ -32,3 +32,7 @@ $ npx sequelize-cli db:migrate
 **NOTE:** You can find migration template files from ./migrations
 
 [Sequelize Doc](https://sequelize.org/docs/v6/)
+
+docker build -t imagebackendmspr .
+docker tag imagebackendmspr europe-west9-docker.pkg.dev/idyllic-now-420018/mspr-backend/imagebackendmspr
+docker push europe-west9-docker.pkg.dev/idyllic-now-420018/mspr-backend/imagebackendmspr

@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-  const User = sequelize.define('User', {
+  const User = sequelize.define("User", {
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
@@ -31,13 +31,28 @@ module.exports = (sequelize, DataTypes) => {
     },
     firstname: DataTypes.STRING,
     lastname: DataTypes.STRING,
+    firstLogin: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: true
+    },
+    wantToBeKeeper: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false
+    },
+    validatePrivacyPolicy: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false
+    },
     picture_profile: DataTypes.STRING
   });
 
   User.associate = function(models) {
-    User.hasMany(models.Request, { foreignKey: 'user_id' });
-    User.hasMany(models.Adress, { foreignKey: 'user_id' });
-    User.hasMany(models.HelpRequest, { foreignKey: 'user_id' });
+    User.hasMany(models.Request, { foreignKey: "user_id" });
+    User.hasMany(models.Adress, { foreignKey: "user_id" });
+    User.hasMany(models.HelpRequest, { foreignKey: "user_id" });
   };
 
   return User;
