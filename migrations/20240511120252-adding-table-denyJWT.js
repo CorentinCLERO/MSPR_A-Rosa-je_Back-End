@@ -2,7 +2,7 @@
 
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.createTable("denyJWT", {
+    await queryInterface.createTable("DenyJWTs", {
       id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
@@ -13,12 +13,20 @@ module.exports = {
         type: Sequelize.TEXT,
         allowNull: false
       },
-      createdAt: Sequelize.DATE,
-      updatedAt: Sequelize.DATE
+      createdAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
+        defaultValue: Sequelize.NOW
+      },
+      updatedAt: {
+        type: Sequelize.DATE,
+        allowNull: false,
+        defaultValue: Sequelize.NOW
+      }
     });
   },
 
   async down (queryInterface, Sequelize) {
-    await queryInterface.dropTable("denyJWT");
+    await queryInterface.dropTable("DenyJWTs");
   }
 };
