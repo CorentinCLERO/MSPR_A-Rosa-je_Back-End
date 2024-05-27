@@ -33,10 +33,12 @@ exports.createUser = async (req, res) => {
     if (existingUser) {
       return res.status(400).send("L'utilisateur existe déjà");
     }
-    
+
+    const lowerCaseEmail = email.toLowerCase();
+    const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
     await User.create({
-      email,
-      password,
+      email: lowerCaseEmail,
+      password: hashedPassword,
       pseudo,
       role,
       firstname,
