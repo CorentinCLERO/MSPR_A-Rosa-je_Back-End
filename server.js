@@ -1,9 +1,9 @@
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
-const { Sequelize } = require("sequelize");
 const http = require("http");
 const { Server } = require("socket.io");
+const db = require("./models");
 
 dotenv.config();
 
@@ -17,10 +17,21 @@ const io = new Server(server, {
 });
 
 io.on("connection", socket => {
+  console.log("------------------------------------------");
   console.log("Client connected : " + socket.id);
+  console.log("------------------------------------------");
 
+  socket.on("join_chat", pseudo => {
+    socket.join(pseudo);
+    console.log("------------------------------------------");
+    console.log("Client chat with pseudo : " + pseudo);
+    console.log("------------------------------------------");
+  });
+  
   socket.on("disconnect", () => {
+    console.log("------------------------------------------");
     console.log("Client disconnected : " + socket.id);
+    console.log("------------------------------------------");
   });
 });
 
@@ -54,13 +65,10 @@ server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
 });
 
-const sequelize = new Sequelize("postgres://postgres.qjkiuntrmbwmwvdtiqhw:MSPRarosajeB3@aws-0-eu-central-1.pooler.supabase.com:5432/postgres");
-
-try {
-  sequelize.authenticate();
-  console.log("Connection has been established successfully.");
-} catch (error) {
-  console.error("Unable to connect to the database:", error);
-}
+db.sequelize.sync().then(() => {
+  console.log("Synced db.");
+}).catch((err) => {
+  console.log("Failed to sync db: " + err.message);
+});
 
 module.exports = server;

@@ -49,6 +49,7 @@ module.exports = (app) => {
   // router.post("/verify_token", controllerUser.verifyToken);
   router.patch("/user/:id", authRole("owner"), controllerUser.modifyUser);
   router.delete("/user/:id", authRole("owner"), controllerUser.deleteUser);
+  router.get("/pseudos", authRole("owner"), controllerUser.getAllPseudos);
   // router.get("/adminBearerToken", controllerUser.getAdminBearerToken);
 
   //ADRESS ROUTES
@@ -60,6 +61,13 @@ module.exports = (app) => {
   //DENYJWT ROUTES
   const controllerDenyJWT = require("../controllers/controllerDenyJWT.js");
   router.post("/denyjwt", authRole("owner"), controllerDenyJWT.addDenyjwt);
+  
+  //MESSAGE ROUTES
+  const controllerMessage = require("../controllers/controllerMessage.js");
+  router.get("/messages/:senderId/:receiverId", authRole("owner"), controllerMessage.getMessages);
+  router.get("/all_messages/:userId", authRole("owner"), controllerMessage.getAllMessages);
+  router.post("/message", authRole("owner"), controllerMessage.createMessage);
+
 
   app.use("/api/mobile", router);
 };

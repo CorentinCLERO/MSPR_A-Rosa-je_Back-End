@@ -328,6 +328,23 @@ exports.deleteUser = async (req, res) => {
   }
 };
 
+exports.getAllPseudos = async (req, res) => {
+  try {
+    const users = await User.findAll({
+      attributes: ["id", "pseudo"]
+    });
+    res.status(200).json(users);
+  } catch (error) {
+    res.status(500).send({
+      message: "Une erreur s'est produite lors de la récupération des pseudos.",
+      error: process.env.NODE_ENV === "development" ? {
+        message: error.message,
+        stack: error.stack
+      } : undefined
+    });
+  }
+};
+
 async function verifyToken(idToken) {
   const ticket = await client.verifyIdToken({
     idToken: idToken,
