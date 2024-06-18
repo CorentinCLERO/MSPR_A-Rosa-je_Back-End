@@ -1,12 +1,15 @@
 const { Op } = require("sequelize");
 const { User, Message } = require("../models");
 
+
 // Exemple de création d'un nouveau message
 exports.createMessage = async (req, res) => {
   try {
     const { content, senderId, receiverId } = req.body;
     const newMessage = await Message.create({ content, senderId, receiverId });
-    res.status(201).send(newMessage);
+    const io = req.app.get("io");
+    io.to(receiverId).emit("new_message", newMessage.dataValues);
+    res.status(201).send(newMessage.dataValues);
   } catch (error) {
     res.status(500).send({
       message: "Erreur lors de la création du message",

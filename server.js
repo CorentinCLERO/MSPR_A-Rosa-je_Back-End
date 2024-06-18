@@ -20,11 +20,11 @@ io.on("connection", socket => {
   console.log("------------------------------------------");
   console.log("Client connected : " + socket.id);
   console.log("------------------------------------------");
-
-  socket.on("join_chat", pseudo => {
-    socket.join(pseudo);
+  
+  socket.on("join_chat", userId => {
+    socket.join(userId);
     console.log("------------------------------------------");
-    console.log("Client chat with pseudo : " + pseudo);
+    console.log("Client chat with userId : " + userId);
     console.log("------------------------------------------");
   });
   
@@ -34,6 +34,8 @@ io.on("connection", socket => {
     console.log("------------------------------------------");
   });
 });
+
+app.set("io", io);
 
 const allowedOrigins = Object.keys(process.env)
   .filter(key => key.startsWith("FRONT_END_URL"))
@@ -71,4 +73,4 @@ db.sequelize.sync().then(() => {
   console.log("Failed to sync db: " + err.message);
 });
 
-module.exports = server;
+module.exports = {server, io};
