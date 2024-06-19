@@ -231,7 +231,7 @@ module.exports = (app) => {
    * /api/denyjwt:
    *   post:
    *     summary: Add a JWT to the deny list
-   *     tags: [DenyJWT]
+   *     tags: [Admin/DenyJWT]
    *     requestBody:
    *       required: true
    *       content:
