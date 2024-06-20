@@ -49,7 +49,7 @@ exports.getAdresses = async (req, res) => {
 exports.addAddress = async (req, res) => {
   try {
     const userId = req.params.userId;
-    const { number, street, city, country } = req.body;
+    const { number, street, city, country, cp } = req.body;
 
     const user = await User.findByPk(userId);
     if (!user) {
@@ -63,6 +63,7 @@ exports.addAddress = async (req, res) => {
         street,
         city,
         country,
+        cp,
       },
     });
 
@@ -76,6 +77,7 @@ exports.addAddress = async (req, res) => {
       street,
       city,
       country,
+      cp,
     });
 
     const compactAddress = `${newAddress.number} ${newAddress.street} ${newAddress.city} ${newAddress.country}`;
@@ -128,12 +130,13 @@ exports.deleteAddress = async (req, res) => {
 
 async function geocodeAddress(address) {
   try {
+    console.log("adresse", address);
     const response = await axios.get(
       "https://maps.googleapis.com/maps/api/geocode/json",
       {
         params: {
           address: address,
-          key: "AIzaSyD3dE8mEFvs49nSZb-igDl8BXNB8obHAx8",
+          key: "AIzaSyCKgUcDZ35zY5ymmTSnYyWVH61bOkWnyyw",
         },
       }
     );

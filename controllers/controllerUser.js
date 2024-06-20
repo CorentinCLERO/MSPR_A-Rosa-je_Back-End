@@ -134,14 +134,12 @@ exports.loginUser = async (req, res) => {
 exports.verifyToken = async (req, res) => {
   try {
     const { token } = req.body;
-
     const tokenInDenyList = await DenyJWT.findOne({ where: { token } });
     if (tokenInDenyList) {
       return res.status(401).send({
         message: "Le token est invalidé et ne peut plus être utilisé"
       });
     }
-
     jwt.verify(token, process.env.SECRET_JWT, async (err, decoded) => {
       if (err) {
         return res.status(401).send({
@@ -149,12 +147,12 @@ exports.verifyToken = async (req, res) => {
           error: err.message
         });
       }
-
+      
       const user = await User.findOne({ where: { email: decoded.email } });
       res.status(200).send({
         message: "Token vérifié avec succès",
         ...decoded,
-        user: user.dataValues
+        user: user?.dataValues
       });
     });
 
@@ -189,7 +187,7 @@ exports.loginAdmin = async (req, res) => {
     }
 
     const userToken = generateJWT(user);
-    res.status(201).send({ message: "Utilisateur connecté avec succès", token: userToken, role: user.role, id: user.id, user: user.dataValues });
+    res.status(201).send({ message: "Utilisateur connecté avec succès", token: userToken, role: user.role, id: user.id, user: user?.dataValues });
   } catch (error) {
     res.status(500).send({
       message: "Erreur lors de la connexion de l'utilisateur",
@@ -229,7 +227,7 @@ exports.verifyAdminToken = async (req, res) => {
       res.status(200).send({
         message: "Token vérifié avec succès",
         ...decoded,
-        user: user.dataValues
+        user: user?.dataValues
       });
     });
 
@@ -306,7 +304,7 @@ exports.modifyUser = async (req, res) => {
     
     await user.save();
     
-    res.status(200).json({user: user.dataValues});
+    res.status(200).json({user: user?.dataValues});
   } catch (error) {
     res.status(500).json({ error: "An error occurred while updating the user." });
   }
@@ -327,6 +325,23 @@ exports.deleteUser = async (req, res) => {
     res.status(200).json({ message: "User deleted successfully" });
   } catch (error) {
     res.status(500).json({ error: "An error occurred while deleting the user." });
+  }
+};
+
+exports.getAllPseudos = async (req, res) => {
+  try {
+    const users = await User.findAll({
+      attributes: ["id", "pseudo"]
+    });
+    res.status(200).json(users);
+  } catch (error) {
+    res.status(500).send({
+      message: "Une erreur s'est produite lors de la récupération des pseudos.",
+      error: process.env.NODE_ENV === "development" ? {
+        message: error.message,
+        stack: error.stack
+      } : undefined
+    });
   }
 };
 
