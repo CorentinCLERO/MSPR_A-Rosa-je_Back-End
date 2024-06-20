@@ -1,14 +1,23 @@
 {
   "development": {
-    "dialect": "sqlite",
-    "storage": "db.sqlite"
+    "username": "postgres.qjkiuntrmbwmwvdtiqhw",
+    "password": "MSPRarosajeB3",
+    "database": "postgres",
+    "host": "aws-0-eu-central-1.pooler.supabase.com",
+    "dialect": "postgres"
   },
   "test": {
-    "dialect": "sqlite",
-    "storage": "db.sqlite"
+    "username": "postgres.qjkiuntrmbwmwvdtiqhw",
+    "password": "MSPRarosajeB3",
+    "database": "postgres",
+    "host": "aws-0-eu-central-1.pooler.supabase.com",
+    "dialect": "postgres"
   },
   "production": {
-    "dialect": "sqlite",
-    "storage": "db.sqlite"
+    "username": "postgres.qjkiuntrmbwmwvdtiqhw",
+    "password": "MSPRarosajeB3",
+    "database": "postgres",
+    "host": "aws-0-eu-central-1.pooler.supabase.com",
+    "dialect": "postgres"
   }
 }

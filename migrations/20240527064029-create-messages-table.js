@@ -1,17 +1,21 @@
 "use strict";
 
 module.exports = {
-  async up (queryInterface, Sequelize) {
-    await queryInterface.createTable("DenyJWTs", {
+  up: async (queryInterface, Sequelize) => {
+    await queryInterface.createTable("Messages", {
       id: {
         type: Sequelize.INTEGER,
-        primaryKey: true,
         autoIncrement: true,
-        allowNull: false
+        primaryKey: true
       },
-      token: {
+      content: {
         type: Sequelize.TEXT,
         allowNull: false
+      },
+      timestamp: {
+        type: Sequelize.DATE,
+        allowNull: false,
+        defaultValue: Sequelize.NOW
       },
       createdAt: {
         type: Sequelize.DATE,
@@ -26,7 +30,7 @@ module.exports = {
     });
   },
 
-  async down (queryInterface, Sequelize) {
-    await queryInterface.dropTable("DenyJWTs");
+  down: async (queryInterface, Sequelize) => {
+    await queryInterface.dropTable("Messages");
   }
 };
