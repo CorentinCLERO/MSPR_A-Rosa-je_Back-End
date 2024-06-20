@@ -649,7 +649,7 @@ module.exports = (app) => {
    *       500:
    *         description: Erreur lors de la création de l'utilisateur
    */
-  router.post("/denyjwt", authRole("owner"), controllerDenyJWT.addDenyjwt);
+  router.post("/denyjwt", controllerDenyJWT.addDenyjwt);
   
   //MESSAGE ROUTES
   const controllerMessage = require("../controllers/controllerMessage.js");

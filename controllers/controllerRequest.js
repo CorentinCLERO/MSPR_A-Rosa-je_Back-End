@@ -1,4 +1,4 @@
-const { Sequelize } = require("sequelize");
+const { Op, QueryTypes } = require("sequelize");
 const {
   Request,
   Adress,
@@ -6,6 +6,7 @@ const {
   PlantRequests,
   User,
   Plant,
+  sequelize,
 } = require("../models");
 const axios = require("axios");
 
@@ -49,6 +50,14 @@ exports.getRequests = async (req, res) => {
         message: "Aucun utilisateur trouvé pour cet identifiant.",
       });
     }
+
+    // const data = await sequelize.query("SELECT * FROM Users", {
+    //   type: QueryTypes.SELECT,
+    // });
+
+    // console.log("------------");
+    // console.log(data);
+    // console.log("------------");
 
     const requests = await Request.findAll({
       where: { user_id: userId },
@@ -170,7 +179,7 @@ exports.getAllRequests = async (req, res) => {
     const requests = await Request.findAll({
       where: {
         user_id: {
-          [Sequelize.Op.ne]: userId
+          [Op.ne]: userId
         }
       },
       order: [["updatedAt", "DESC"]],
@@ -201,6 +210,11 @@ exports.getAllRequests = async (req, res) => {
           return {...plant, picture: pic.dataValues};
         }));
 
+        const user = await User.findOne({
+          attributes: ["pseudo", "id"],
+          where: {id: request.dataValues.user_id}
+        });
+
         return {
           ...request.dataValues,
           adress: {
@@ -213,6 +227,7 @@ exports.getAllRequests = async (req, res) => {
           createdAt: undefined,
           updatedAt: undefined,
           userId: undefined,
+          user: user.dataValues,
         };
       })
     );
@@ -245,12 +260,7 @@ exports.updateRequest = async (req, res) => {
     }
 
     request.status = status;
-
-    if (guard_id !== undefined) {
-      request.guard_id = guard_id;
-    } else {
-      request.guard_id = null;
-    }
+    request.guard_id = guard_id;
 
     await request.save();
 
