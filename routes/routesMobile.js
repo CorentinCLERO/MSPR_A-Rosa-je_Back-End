@@ -181,7 +181,7 @@ module.exports = (app) => {
   router.get("/requests/:userId", authRole("owner"), controllerRequest.getRequests);
   /**
    * @swagger
-   * /api/mobile/requests:
+   * /api/mobile/requests/{userId}:
    *   get:
    *     summary: Get all requests
    *     tags: [Mobile/Request]
@@ -189,7 +189,7 @@ module.exports = (app) => {
    *       - bearerAuth: []
    *     responses:
    *       200:
-   *         description: A list of all requests.
+   *         description: A compilation of all requests that are not the user's.
    *         content:
    *           application/json:
    *             schema:
@@ -201,10 +201,10 @@ module.exports = (app) => {
    *       500:
    *         description: Une erreur s'est produite lors de la récupération des requêtes
    */
-  router.get("/requests", authRole("keeper"), controllerRequest.getAllRequests);
+  router.get("/allUsersRequests/:userId", authRole("keeper"), controllerRequest.getAllRequests);
   /**
  * @swagger
- * /api/mobile/request/{requestId}:
+ * /api/mobile/requests/{requestId}:
  *   put:
  *     summary: Update a request
  *     tags: [Mobile/Request]
@@ -227,6 +227,9 @@ module.exports = (app) => {
  *               status:
  *                 type: string
  *                 description: The new status of the request
+ *               guard_id:
+ *                 type: integer
+ *                 description: The ID of the guard assigned to the request (optional)
  *     responses:
  *       200:
  *         description: The request was updated successfully.
@@ -258,6 +261,9 @@ module.exports = (app) => {
  *                       type: integer
  *                     adress_id:
  *                       type: integer
+ *                     guard_id:
+ *                       type: integer
+ *                       nullable: true
  *       404:
  *         description: Aucune requête trouvée pour cet identifiant.
  *       500:

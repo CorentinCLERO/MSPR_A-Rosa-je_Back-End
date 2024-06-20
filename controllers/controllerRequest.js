@@ -1,3 +1,4 @@
+const { Sequelize } = require("sequelize");
 const {
   Request,
   Adress,
@@ -164,8 +165,14 @@ exports.RequestAccept = async (req, res) => {
 };
 
 exports.getAllRequests = async (req, res) => {
+  const userId = req.params.userId;
   try {
     const requests = await Request.findAll({
+      where: {
+        user_id: {
+          [Sequelize.Op.ne]: userId
+        }
+      },
       order: [["updatedAt", "DESC"]],
     });
     const requestList = await Promise.all(
@@ -225,7 +232,7 @@ exports.getAllRequests = async (req, res) => {
 exports.updateRequest = async (req, res) => {
   try {
     const requestId = req.params.requestId;
-    const { status } = req.body;
+    const { status, guard_id } = req.body;
 
     const request = await Request.findOne({
       where: { id: requestId },
@@ -238,16 +245,22 @@ exports.updateRequest = async (req, res) => {
     }
 
     request.status = status;
+
+    if (guard_id !== undefined) {
+      request.guard_id = guard_id;
+    } else {
+      request.guard_id = null;
+    }
+
     await request.save();
 
     res.send({
-      message: "La requête a été mis à jour avec succès.",
+      message: "La requête a été mise à jour avec succès.",
       request: request,
     });
   } catch (error) {
     res.status(500).send({
-      message:
-        "Une erreur s'est produite lors de la mise à jour de la requête.",
+      message: "Une erreur s'est produite lors de la mise à jour de la requête.",
       error:
         process.env.NODE_ENV === "development"
           ? {
