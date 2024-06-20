@@ -203,6 +203,68 @@ module.exports = (app) => {
    */
   router.get("/requests", authRole("keeper"), controllerRequest.getAllRequests);
   /**
+ * @swagger
+ * /api/mobile/request/{requestId}:
+ *   put:
+ *     summary: Update a request
+ *     tags: [Mobile/Request]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: requestId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: The ID of the request to update
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 description: The new status of the request
+ *     responses:
+ *       200:
+ *         description: The request was updated successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 request:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                     begin_date:
+ *                       type: string
+ *                       format: date-time
+ *                     end_date:
+ *                       type: string
+ *                       format: date-time
+ *                     status:
+ *                       type: string
+ *                     reason:
+ *                       type: string
+ *                     description:
+ *                       type: string
+ *                     user_id:
+ *                       type: integer
+ *                     adress_id:
+ *                       type: integer
+ *       404:
+ *         description: Aucune requête trouvée pour cet identifiant.
+ *       500:
+ *         description: Une erreur s'est produite lors de la mise à jour de la requête.
+ */
+  router.put("/request/:requestId", authRole("keeper"), controllerRequest.updateRequest);
+  /**
    * @swagger
    * /api/mobile/request:
    *   post:

@@ -4,6 +4,7 @@ const {
   Picture,
   PlantRequests,
   User,
+  Plant,
 } = require("../models");
 const axios = require("axios");
 
@@ -14,7 +15,7 @@ async function geocodeAddress(address) {
       {
         params: {
           address: address,
-          key: "AIzaSyD3dE8mEFvs49nSZb-igDl8BXNB8obHAx8",
+          key: "AIzaSyCKgUcDZ35zY5ymmTSnYyWVH61bOkWnyyw",
         },
       }
     );
@@ -47,12 +48,9 @@ exports.getRequests = async (req, res) => {
         message: "Aucun utilisateur trouvé pour cet identifiant.",
       });
     }
-    const requestStatus = req.query.request_status;
-
-    const whereCondition = requestStatus ? { status: requestStatus } : {};
 
     const requests = await Request.findAll({
-      where: { ...whereCondition, user_id: userId },
+      where: { user_id: userId },
       order: [["updatedAt", "DESC"]],
     });
     const requestList = await Promise.all(
@@ -67,9 +65,19 @@ exports.getRequests = async (req, res) => {
           ? await geocodeAddress(compactAdress)
           : { latitude: null, longitude: null };
 
-        const picture = await Picture.findAll({
+        const plantRequests = await PlantRequests.findAll({
           where: { request_id: request.dataValues.id },
         });
+        
+        const plants = await Promise.all(plantRequests.map(async plantRequest => {
+          const plant = await Plant.findOne({ where: { id: plantRequest.dataValues.plant_id }});
+          return {...plant.dataValues};
+        }));
+
+        const plantsWithPictures = await Promise.all(plants.map(async plant => {
+          const pic = await Picture.findOne({ where: {plant_id: plant.id}});
+          return {...plant, picture: pic.dataValues};
+        }));
 
         return {
           ...request.dataValues,
@@ -79,7 +87,7 @@ exports.getRequests = async (req, res) => {
             latitude: convertedAdress.latitude,
             longitude: convertedAdress.longitude,
           },
-          plants: picture,
+          plants: plantsWithPictures,
           createdAt: undefined,
           updatedAt: undefined,
           userId: undefined,
@@ -155,7 +163,6 @@ exports.RequestAccept = async (req, res) => {
   }
 };
 
-
 exports.getAllRequests = async (req, res) => {
   try {
     const requests = await Request.findAll({
@@ -173,9 +180,19 @@ exports.getAllRequests = async (req, res) => {
           ? await geocodeAddress(compactAdress)
           : { latitude: null, longitude: null };
 
-        const picture = await Picture.findAll({
+        const plantRequests = await PlantRequests.findAll({
           where: { request_id: request.dataValues.id },
         });
+        
+        const plants = await Promise.all(plantRequests.map(async plantRequest => {
+          const plant = await Plant.findOne({ where: { id: plantRequest.dataValues.plant_id }});
+          return {...plant.dataValues};
+        }));
+
+        const plantsWithPictures = await Promise.all(plants.map(async plant => {
+          const pic = await Picture.findOne({ where: {plant_id: plant.id}});
+          return {...plant, picture: pic.dataValues};
+        }));
 
         return {
           ...request.dataValues,
@@ -185,7 +202,7 @@ exports.getAllRequests = async (req, res) => {
             latitude: convertedAdress.latitude,
             longitude: convertedAdress.longitude,
           },
-          plants: picture,
+          plants: plantsWithPictures,
           createdAt: undefined,
           updatedAt: undefined,
           userId: undefined,
@@ -201,6 +218,43 @@ exports.getAllRequests = async (req, res) => {
         message: error.message,
         stack: error.stack,
       } : undefined,
+    });
+  }
+};
+
+exports.updateRequest = async (req, res) => {
+  try {
+    const requestId = req.params.requestId;
+    const { status } = req.body;
+
+    const request = await Request.findOne({
+      where: { id: requestId },
+    });
+
+    if (!request) {
+      return res.status(404).send({
+        message: "Aucune requête trouvée pour cet identifiant.",
+      });
+    }
+
+    request.status = status;
+    await request.save();
+
+    res.send({
+      message: "La requête a été mis à jour avec succès.",
+      request: request,
+    });
+  } catch (error) {
+    res.status(500).send({
+      message:
+        "Une erreur s'est produite lors de la mise à jour de la requête.",
+      error:
+        process.env.NODE_ENV === "development"
+          ? {
+            message: error.message,
+            stack: error.stack,
+          }
+          : undefined,
     });
   }
 };
@@ -222,7 +276,7 @@ exports.postRequest = async (req, res) => {
 
     for (let i = 0; i < plants.length; i++) {
       await PlantRequests.create({
-        plant_id: plants[i],
+        plant_id: plants[i].id,
         request_id: request.id,
         createdAt: new Date(),
         updatedAt: new Date(),

@@ -19,22 +19,22 @@ const io = new Server(server, {
 });
 
 io.on("connection", socket => {
-  console.log("------------------------------------------");
-  console.log("Client connected : " + socket.id);
-  console.log("------------------------------------------");
+  // console.log("------------------------------------------");
+  // console.log("Client connected : " + socket.id);
+  // console.log("------------------------------------------");
   
   socket.on("join_chat", userId => {
     socket.join(userId);
-    console.log("------------------------------------------");
-    console.log("Client chat with userId : " + userId);
-    console.log("------------------------------------------");
+    // console.log("------------------------------------------");
+    // console.log("Client chat with userId : " + userId);
+    // console.log("------------------------------------------");
   });
   
-  socket.on("disconnect", () => {
-    console.log("------------------------------------------");
-    console.log("Client disconnected : " + socket.id);
-    console.log("------------------------------------------");
-  });
+  // socket.on("disconnect", () => {
+  //   console.log("------------------------------------------");
+  //   console.log("Client disconnected : " + socket.id);
+  //   console.log("------------------------------------------");
+  // });
 });
 
 app.set("io", io);
